@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" fill="none">
+  <rect width="360" height="360" rx="24" fill="#F1F5F9"/>
+  <!-- Colorful Plastic Bottle Caps (Red, Blue, Green, Yellow) matching Screen 11 -->
+  <!-- Blue Cap -->
+  <ellipse cx="135" cy="145" rx="52" ry="24" fill="#1D4ED8"/>
+  <rect x="83" y="145" width="104" height="45" fill="#2563EB"/>
+  <ellipse cx="135" cy="190" rx="52" ry="24" fill="#1E40AF"/>
+  <!-- Green Cap -->
+  <ellipse cx="225" cy="135" rx="50" ry="22" fill="#15803D"/>
+  <rect x="175" y="135" width="100" height="44" fill="#16A34A"/>
+  <ellipse cx="225" cy="179" rx="50" ry="22" fill="#166534"/>
+  <!-- Yellow Cap -->
+  <ellipse cx="125" cy="235" rx="52" ry="24" fill="#CA8A04"/>
+  <rect x="73" y="235" width="104" height="45" fill="#EAB308"/>
+  <ellipse cx="125" cy="280" rx="52" ry="24" fill="#A16207"/>
+  <!-- Red Cap -->
+  <ellipse cx="220" cy="225" rx="54" ry="25" fill="#B91C1C"/>
+  <rect x="166" y="225" width="108" height="48" fill="#EF4444"/>
+  <ellipse cx="220" cy="273" rx="54" ry="25" fill="#991B1B"/>
+</svg>

@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-app: #F4F7FB;
+    --bg-card: #FFFFFF;
+    --navy-primary: #0B2A5B;
+    --blue-accent: #1D6BF3;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+    --border-soft: #E2E8F0;
+  }
+
+  html {
+    font-family: 'IBM Plex Sans Arabic', 'Plus Jakarta Sans', sans-serif;
+    background-color: #F4F7FB;
+    color: #0F172A;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #F4F7FB;
+    color: #0F172A;
+    overflow-x: hidden;
+  }
+}
+
+.font-mono-num {
+  font-family: 'IBM Plex Sans Arabic', 'Plus Jakarta Sans', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}

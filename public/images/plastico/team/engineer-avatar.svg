@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none">
+  <defs>
+    <linearGradient id="avatarBg" x1="0" y1="0" x2="240" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#DBEAFE"/>
+      <stop offset="100%" stop-color="#BFDBFE"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="240" rx="120" fill="url(#avatarBg)"/>
+  <!-- Engineer Navy Polo/Jacket -->
+  <path d="M40 240C45 182 78 162 120 162C162 162 195 182 200 240H40Z" fill="#0B2A5B"/>
+  <path d="M98 162L120 198L142 162H98Z" fill="#1D6BF3"/>
+  <!-- Neck -->
+  <rect x="103" y="135" width="34" height="34" rx="12" fill="#E0A982"/>
+  <!-- Face -->
+  <rect x="82" y="62" width="76" height="86" rx="36" fill="#EAC09E"/>
+  <!-- Beard & Mustache -->
+  <path d="M84 112C84 134 100 148 120 148C140 148 156 134 156 112C152 124 140 132 120 132C100 132 88 124 84 112Z" fill="#1E293B"/>
+  <path d="M104 120Q120 114 136 120" stroke="#1E293B" stroke-width="4" stroke-linecap="round"/>
+  <!-- Smile -->
+  <path d="M108 124Q120 132 132 124" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Eyes & Eyebrows -->
+  <circle cx="104" cy="98" r="4.5" fill="#0F172A"/>
+  <circle cx="136" cy="98" r="4.5" fill="#0F172A"/>
+  <path d="M95 88Q104 84 112 88" stroke="#0F172A" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M128 88Q136 84 145 88" stroke="#0F172A" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Styled Dark Hair -->
+  <path d="M78 88C76 58 96 42 124 44C150 46 164 62 160 88C154 72 140 66 120 66C100 66 84 72 78 88Z" fill="#0F172A"/>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="pGradMain" x1="15" y1="15" x2="105" y2="105" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B3B8C"/>
+      <stop offset="52%" stop-color="#1D72F2"/>
+      <stop offset="100%" stop-color="#47A8FF"/>
+    </linearGradient>
+    <linearGradient id="pGradFold" x1="20" y1="55" x2="75" y2="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#082866"/>
+      <stop offset="50%" stop-color="#1864DC"/>
+      <stop offset="100%" stop-color="#58B6FF"/>
+    </linearGradient>
+    <filter id="pShadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0B2A5B" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  <g filter="url(#pShadow)">
+    <!-- Upper P loop ribbon -->
+    <path d="M34 22H68C85.673 22 98 33.4 98 49.5C98 65.6 85.673 77 68 77H48C39.5 77 34 82.5 34 90V64C34 56.5 40 53 49 53H66C73.5 53 78 49.8 78 44.5C78 39.2 73.5 36 66 36H34C28.5 36 25 32.5 25 28C25 24.5 28.5 22 34 22Z" fill="url(#pGradMain)"/>
+    <!-- Lower P stem ribbon -->
+    <path d="M48 56H66C52 56 49 63 49 74V92C49 98.6 43.6 104 37 104H30C26.7 104 25 101.5 25 98V76C25 63.5 34.5 56 48 56Z" fill="url(#pGradFold)"/>
+  </g>
+</svg>

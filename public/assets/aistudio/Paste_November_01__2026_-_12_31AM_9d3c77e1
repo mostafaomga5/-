@@ -1,0 +1,1934 @@
+PLASTICO — MASTER BUILD PROMPT
+
+Build a Premium, Complete Arabic Plastics Industry Platform
+
+You are acting as a senior product designer, UX/UI architect, brand designer, and expert full-stack React developer.
+
+Your task is to design and build PLASTICO (بلاستيكو) — a complete, premium, multi-page digital platform dedicated to the plastics manufacturing industry across Egypt and the Arab world.
+
+This is not a simple landing page, a static template, or a visual demo made of non-functional cards.
+
+Build a real, structured, responsive web application with multiple pages, clear navigation, realistic industrial content, working forms, search, filters, dashboards, profiles, and interactive workflows.
+
+The platform must connect everyone in the plastics industry:
+
+- Technicians and machine operators.
+- Engineers and technical specialists.
+- Factory owners and production managers.
+- Raw material suppliers.
+- Machinery and spare-parts suppliers.
+- Industrial equipment traders.
+- Customers looking for factories to manufacture their plastic products.
+- Factories offering manufacturing and production services to third parties.
+
+The most important addition is a full Manufacturing Services & Contract Manufacturing Marketplace that connects customers who need plastic products manufactured with factories that have the machines, molds, technical capabilities, and available production capacity.
+
+The final result must feel like a high-quality international industrial SaaS platform, not a generic business website.
+
+---
+
+1. NON-NEGOTIABLE REQUIREMENTS
+
+Follow these requirements throughout the entire project.
+
+1. Build a complete multi-page application, not just a homepage.
+2. Create a distinctive original PLASTICO brand identity and logo.
+3. Use excellent UX and UI quality across every screen.
+4. Arabic must be the default language, with complete RTL layout support.
+5. Provide an English language option with proper LTR layout.
+6. Design mobile-first, while maintaining an excellent desktop and tablet experience.
+7. Generate the required visual assets using an image-generation capability, save the generated files inside the project, and use those local files in the website.
+8. Do not use external image URLs or hotlinked images.
+9. Do not use Unsplash, Pexels, stock-photo URLs, or remote image links.
+10. Do not use emoji as interface icons. Use consistent SVG icons from Lucide React.
+11. Every visible button, menu item, tab, form, card action, and navigation link must perform a meaningful action.
+12. Do not create empty pages, fake buttons, dead links, or decorative controls that appear functional but do nothing.
+13. Do not sacrifice quality to finish quickly.
+14. Do not simplify the manufacturing services marketplace into a basic contact form.
+15. Keep the architecture clean and ready for a real backend.
+16. Never claim that a demo-only feature is a real multi-user or secure production feature.
+17. Do not stop after creating the homepage. Complete the core pages and workflows listed in this specification.
+
+If a requirement cannot be implemented because a required service or integration is unavailable, provide the best honest working alternative and clearly identify the limitation.
+
+---
+
+2. PRODUCT VISION
+
+PLASTICO is a specialized digital ecosystem for the plastics industry.
+
+Its purpose is to bring the entire industry into one organized platform.
+
+A technician should be able to find work, publish machine problems, learn from other technicians, and build a professional reputation.
+
+An engineer should be able to display their specialization, experience, technical skills, and professional achievements.
+
+A factory owner should be able to publish jobs, showcase the factory, find suppliers, advertise available manufacturing capacity, and receive manufacturing requests.
+
+A supplier should be able to present materials, machinery, spare parts, and industrial products.
+
+A trader should be able to advertise used machines, molds, and equipment.
+
+A customer should be able to find a suitable factory to manufacture a plastic product, operate an existing mold, or provide a specific manufacturing service.
+
+PLASTICO must serve as a professional meeting point between the people, factories, products, equipment, and services of the plastics industry.
+
+Primary market:
+
+- Egypt.
+
+Expansion markets:
+
+- Saudi Arabia.
+- United Arab Emirates.
+- Kuwait.
+- Other Arab countries.
+
+Build the platform so that adding more countries, currencies, cities, and languages later is straightforward.
+
+---
+
+3. BRAND IDENTITY AND LOGO
+
+Create an original, recognizable brand identity for PLASTICO.
+
+Brand name
+
+English: PLASTICO
+
+Arabic: بلاستيكو
+
+Brand personality:
+
+- Industrial.
+- Innovative.
+- Professional.
+- Technological.
+- Trustworthy.
+- Modern.
+- Connected to manufacturing and engineering.
+
+Logo requirements
+
+Design a completely original logo.
+
+Do not copy an existing brand or use a generic pre-made logo.
+
+The logo concept should communicate some combination of:
+
+- Plastics manufacturing.
+- Connected industrial networks.
+- Precision engineering.
+- Polymer flow or manufacturing processes.
+- Modern technology.
+
+Create these variations:
+
+1. Main horizontal logo with symbol and PLASTICO wordmark.
+2. Arabic version with the name بلاستيكو.
+3. Standalone symbol.
+4. Square app icon.
+5. Favicon.
+
+Prefer clean vector artwork.
+
+Save the logo as real local SVG files inside:
+
+"/public/brand/"
+
+Suggested files:
+
+- "plastico-logo.svg"
+- "plastico-logo-ar.svg"
+- "plastico-symbol.svg"
+- "plastico-favicon.svg"
+
+The logo must remain sharp at every screen size.
+
+Do not generate the logo as an ordinary photograph. Build it as clean SVG vector artwork so it can be used throughout the website.
+
+Create a consistent brand identity around the logo, including colors, typography, buttons, cards, icon treatments, and other interface elements.
+
+---
+
+4. IMAGE GENERATION — MANDATORY
+
+Visual quality is extremely important.
+
+Do not use external image URLs.
+
+Do not fill the website with generic placeholders.
+
+Do not use random internet images.
+
+Generate the images first, save them inside the project, and then use those saved image files throughout the website.
+
+Use the available native image-generation capability to create original images for PLASTICO.
+
+If the image-generation workflow is available, generate the assets before completing the relevant UI sections.
+
+If image generation is unavailable for any specific asset, do not silently replace it with a remote image URL. Use a carefully designed local SVG/CSS visual where appropriate and report which generated assets still need to be created.
+
+Required image style
+
+The images should look like premium industrial photography and 3D visualizations.
+
+Visual direction:
+
+- Realistic plastic manufacturing facilities.
+- Professional injection molding machines.
+- Plastic extrusion production lines.
+- Blow molding machines.
+- Plastic film production.
+- Industrial molds and precision components.
+- Industrial raw materials.
+- Modern factory interiors.
+- Technical manufacturing environments.
+- Clean industrial product photography.
+
+Use realistic lighting, correct industrial proportions, professional camera composition, and high-quality details.
+
+Avoid:
+
+- Cartoon illustrations.
+- Cheap clipart.
+- Unprofessional stock-photo aesthetics.
+- Unrealistic machinery.
+- Distorted equipment.
+- Random text inside generated images.
+- Watermarks.
+- Fake logos.
+- Embedded headings or labels inside images.
+
+All text and branding must be added as actual website elements, not baked into photographs.
+
+Required image assets
+
+Generate a coherent visual collection that includes at least:
+
+A. Main brand and homepage
+
+1. Main homepage hero image showing a premium, modern plastics manufacturing environment.
+2. A secondary industrial image for the platform introduction section.
+3. A visual showing the connection between factories, suppliers, technicians, and customers.
+
+B. Manufacturing services
+
+4. Injection molding production.
+5. Blow molding production.
+6. Plastic film extrusion.
+7. Pipe and profile extrusion.
+8. Sheet extrusion and thermoforming.
+9. Vacuum forming.
+10. Plastic recycling.
+11. Mold manufacturing and precision engineering.
+12. Industrial assembly and finishing.
+
+C. Industrial marketplace
+
+13. Used injection molding machine.
+14. Industrial mold.
+15. Spare parts and machine components.
+16. Plastic raw materials in granule form.
+17. Industrial auxiliary equipment.
+
+D. Other platform sections
+
+18. Industrial factory interior for virtual exhibitions.
+19. A manufacturing technician or engineer in a professional factory environment.
+20. A modern industrial production team.
+
+More images can be generated when needed for specific sections.
+
+Save and organize every generated image
+
+Store all generated image files locally in a clear folder structure such as:
+
+"/public/images/plastico/"
+
+Example organization:
+
+- "/public/images/plastico/hero/"
+- "/public/images/plastico/manufacturing/"
+- "/public/images/plastico/marketplace/"
+- "/public/images/plastico/factories/"
+- "/public/images/plastico/team/"
+- "/public/images/plastico/news/"
+
+Use descriptive filenames such as:
+
+- "hero-plastics-factory.webp"
+- "injection-molding.webp"
+- "blow-molding.webp"
+- "film-extrusion.webp"
+- "pipe-extrusion.webp"
+- "plastic-recycling.webp"
+- "industrial-mold.webp"
+- "used-injection-machine.webp"
+- "plastic-resin-granules.webp"
+
+Use optimized WebP or AVIF formats when supported.
+
+Use meaningful alt text, appropriate image sizes, responsive rendering, and lazy loading for images below the fold.
+
+Create a clear image asset manifest so the project uses consistent local image paths.
+
+Important: Every generated image used in the website must be saved as a project asset. The website must not depend on an external image link to display its main visual content.
+
+---
+
+5. VISUAL DESIGN SYSTEM
+
+Use a premium dark industrial technology theme based on the original PLASTICO design specification.
+
+The overall appearance should be modern, elegant, precise, and professional.
+
+Avoid an overly busy interface.
+
+Avoid excessive glow effects, unnecessary gradients, and glass effects on every component.
+
+Use depth, subtle borders, spacing, contrast, and typography to create a refined interface.
+
+Core colors
+
+Purpose| Color
+Main background| "#07080D"
+Primary blue| "#2563EB"
+Dark blue| "#1D4ED8"
+Orange accent| "#F97316"
+Success green| "#10B981"
+Error red| "#EF4444"
+Exhibition purple| "#8B5CF6"
+Main text| "#F1F5FD"
+Secondary text| "#94A3B8"
+Glass surface| "rgba(255,255,255,0.04)"
+Subtle border| "rgba(255,255,255,0.08)"
+
+You may refine supporting shades, but preserve the overall brand colors and their semantic meanings.
+
+Typography
+
+Use a professional Arabic font with excellent readability, such as:
+
+- IBM Plex Sans Arabic.
+- Cairo.
+- Or another suitable modern Arabic font.
+
+Use a matching professional Latin font for English.
+
+Maintain:
+
+- Clear text hierarchy.
+- Comfortable line height.
+- Readable body text.
+- Consistent headings.
+- Good spacing between elements.
+
+Cards
+
+Use refined cards with:
+
+- Subtle transparent surfaces.
+- Thin borders.
+- Carefully controlled shadows.
+- Rounded corners around 16–20px.
+- Clear content hierarchy.
+- Consistent hover states.
+
+Buttons
+
+Create clear button styles:
+
+Primary:
+
+- Blue gradient from "#2563EB" to "#1D4ED8".
+- Carefully controlled shadow.
+- Strong readable text.
+
+Secondary:
+
+- Transparent or subtle surface.
+- Clear border.
+- Visible hover state.
+
+Danger:
+
+- Red visual treatment.
+
+All buttons must have hover, focus, active, and disabled states.
+
+Icons
+
+Use Lucide React icons.
+
+Use consistent SVG stroke widths.
+
+Do not use emojis.
+
+Do not mix unrelated icon styles.
+
+---
+
+6. USER TYPES AND PERMISSIONS
+
+Support the five main account types in the original platform:
+
+1. Technician — فني.
+2. Engineer — مهندس.
+3. Factory Owner — صاحب مصنع.
+4. Supplier — مورد.
+5. Trader — تاجر.
+
+Allow visitors to browse public content without registering.
+
+Require registration or login before performing protected actions such as publishing listings, applying for jobs, submitting solutions, or sending manufacturing offers.
+
+Each account type should have a suitable onboarding flow and profile fields.
+
+Technician profile
+
+Fields:
+
+- Full name.
+- Profile image.
+- Phone.
+- Email.
+- Country.
+- City.
+- Years of experience.
+- Machine types.
+- Specialization.
+- Materials worked with.
+- Previous factories.
+- Technical skills.
+- Professional description.
+- Work history.
+- Ratings.
+- Points.
+- Achievement badges.
+
+Engineer profile
+
+Include all relevant technician fields, plus:
+
+- Engineering specialization.
+- Mechanical.
+- Electrical.
+- Hydraulic.
+- Control systems.
+- Production.
+- Quality.
+- Maintenance.
+- Technical certificates.
+- Professional achievements.
+- Technical portfolio.
+
+Factory profile
+
+Fields:
+
+- Factory name.
+- Logo.
+- Cover image.
+- Country and city.
+- Industrial area.
+- Factory description.
+- Manufacturing processes.
+- Machine types.
+- Machine capacities.
+- Materials processed.
+- Production capabilities.
+- Available manufacturing services.
+- Available production capacity.
+- Contact information.
+- Website or social links.
+- Factory gallery.
+- Reviews and ratings.
+
+Supplier profile
+
+Fields:
+
+- Company name.
+- Logo.
+- Cover.
+- Products and categories.
+- Materials.
+- Machinery.
+- Spare parts.
+- Geographic coverage.
+- Contact information.
+- Product gallery.
+- Business description.
+- Ratings.
+
+Trader profile
+
+Fields:
+
+- Full name or business name.
+- Logo or profile image.
+- City.
+- Equipment categories.
+- Used machinery listings.
+- Mold listings.
+- Spare parts listings.
+- Contact information.
+- Ratings.
+
+---
+
+7. MAIN WEBSITE STRUCTURE
+
+Build the full platform with proper routing and multiple real pages.
+
+Public pages
+
+- "/" — Public homepage.
+- "/about" — About PLASTICO.
+- "/how-it-works" — How the platform works.
+- "/contact" — Contact page.
+- "/auth/login" — Login.
+- "/auth/register" — Registration.
+
+Onboarding
+
+- "/onboarding/type" — Choose account type.
+- "/onboarding/setup" — Complete account information.
+
+Main application
+
+- "/app/home"
+- "/app/faults"
+- "/app/faults/:id"
+- "/app/jobs"
+- "/app/jobs/:id"
+- "/app/market"
+- "/app/market/:id"
+- "/app/expo"
+- "/app/expo/:id"
+- "/app/news"
+- "/app/news/:id"
+- "/app/manufacturing"
+- "/app/manufacturing/requests"
+- "/app/manufacturing/requests/new"
+- "/app/manufacturing/requests/:id"
+- "/app/manufacturing/providers"
+- "/app/manufacturing/providers/:id"
+- "/app/manufacturing/machines"
+- "/app/manufacturing/molds"
+- "/app/manufacturing/my-requests"
+- "/app/manufacturing/my-offers"
+- "/app/profile"
+- "/app/profile/edit"
+- "/app/notifications"
+- "/app/settings"
+
+Create all listed routes with appropriate content and interactions.
+
+Do not route unrelated pages to a generic placeholder.
+
+---
+
+8. PUBLIC HOMEPAGE
+
+The homepage must introduce PLASTICO immediately and explain the value of the platform.
+
+Hero section
+
+Use:
+
+- Original PLASTICO logo.
+- Clear headline.
+- Short supporting description.
+- Main image generated specifically for the PLASTICO brand.
+- Primary call to action: "ابدأ الآن".
+- Secondary call to action: "استكشف المنصة".
+
+Suggested Arabic headline:
+
+"كل صناعة البلاستيك في مكان واحد"
+
+Supporting text:
+
+"منصة صناعية متخصصة تربط الفنيين والمهندسين والمصانع والموردين والعملاء، وتسهّل الوصول إلى الحلول والخدمات وفرص التصنيع."
+
+The visual should feel premium, modern, and industrial.
+
+Do not make the hero unnecessarily crowded.
+
+Homepage content sections
+
+1. Platform introduction.
+2. Main platform services.
+3. Manufacturing services marketplace.
+4. Industrial faults and technical solutions.
+5. Industrial jobs.
+6. Used equipment and machinery marketplace.
+7. Virtual exhibitions.
+8. Factory and supplier discovery.
+9. Industrial news.
+10. How PLASTICO works.
+11. Registration call to action.
+12. Footer with organized links and contact information.
+
+Main feature cards
+
+Each card must have a relevant local image or carefully designed SVG visual.
+
+The cards should introduce:
+
+- Manufacturing Services.
+- Industrial Faults.
+- Industrial Jobs.
+- Used Equipment Market.
+- Virtual Exhibitions.
+- Industrial News.
+
+Manufacturing Services must be one of the most prominent sections.
+
+---
+
+9. MAIN APPLICATION DASHBOARD
+
+Create a professional dashboard after the user enters the platform.
+
+The dashboard must adapt its information to the account type.
+
+Include:
+
+- Welcome message.
+- Search bar.
+- Relevant quick actions.
+- Latest industrial activity.
+- Recent faults.
+- Recent jobs.
+- Manufacturing service requests.
+- Available factory services.
+- Recommended suppliers.
+- Market listings.
+- Important notifications.
+- User profile summary.
+- Points and reputation.
+- Relevant statistics.
+
+Use realistic example content for the demonstration.
+
+Do not overload the interface with unnecessary data.
+
+Main navigation
+
+For desktop, use a clear sidebar or top navigation system.
+
+For mobile, use a fixed bottom navigation with the most important destinations:
+
+1. الرئيسية.
+2. خدمات التصنيع.
+3. الأعطال.
+4. السوق.
+5. حسابي.
+
+Expose the remaining sections through a well-organized navigation menu:
+
+- الوظائف.
+- المعارض.
+- الأخبار.
+- الإشعارات.
+- الإعدادات.
+
+Keep the navigation consistent across authenticated pages.
+
+---
+
+10. MANUFACTURING SERVICES MARKETPLACE
+
+The most important platform feature
+
+Build this as a major standalone section, not a small feature inside the used equipment market.
+
+Arabic section name:
+
+خدمات التصنيع والتشغيل للغير
+
+English section name:
+
+Manufacturing Services & Contract Manufacturing
+
+Its purpose is to connect:
+
+- Customers who need a plastic product manufactured.
+- Factories that can manufacture the product.
+- Factories that have unused machine capacity.
+- Mold owners who need their molds operated.
+- Factories offering mold operation services.
+- Businesses looking for contract manufacturing.
+- Factories offering mold manufacturing, modification, and maintenance.
+
+This marketplace must support both sides of the business.
+
+10.1 Manufacturing services homepage
+
+Create a dedicated page with:
+
+- Strong professional heading.
+- Search field.
+- Manufacturing process categories.
+- Featured factories.
+- Recently published manufacturing requests.
+- Factories offering available capacity.
+- Popular services.
+- Clear action buttons.
+
+Main actions:
+
+1. "اطلب تصنيع منتج".
+2. "لديك اسطمبة وتريد تشغيلها".
+3. "اعرض ماكينة متاحة للتشغيل".
+4. "ابحث عن مصنع".
+5. "اعرض خدمات مصنعك".
+6. "تصفح طلبات التصنيع".
+
+10.2 Manufacturing process categories
+
+Include all relevant plastics manufacturing processes.
+
+Injection molding — حقن البلاستيك
+
+Examples:
+
+- Plastic caps.
+- Containers.
+- Medical plastic parts.
+- Household products.
+- Industrial components.
+- Custom injection products.
+
+Blow molding — نفخ البلاستيك
+
+Examples:
+
+- Bottles.
+- Containers.
+- Hollow plastic products.
+
+Film extrusion — إنتاج الأفلام البلاستيكية
+
+Examples:
+
+- Plastic bags.
+- Packaging film.
+- Agricultural film.
+- Industrial wrapping film.
+
+Pipe extrusion — إنتاج المواسير
+
+Examples:
+
+- PVC pipes.
+- PE pipes.
+- Other plastic pipe products.
+
+Profile extrusion — إنتاج القطاعات
+
+Examples:
+
+- Plastic profiles.
+- Technical profiles.
+- Custom extruded sections.
+
+Sheet extrusion — إنتاج الألواح
+
+Examples:
+
+- Plastic sheets.
+- Thermoplastic sheets.
+- Packaging sheets.
+
+Vacuum forming — الفاكيوم فورمينج
+
+Examples:
+
+- Packaging trays.
+- Formed plastic sheets.
+- Custom formed products.
+
+Thermoforming — التشكيل الحراري
+
+Examples:
+
+- Plastic packaging.
+- Containers.
+- Formed components.
+
+Plastic recycling — إعادة تدوير البلاستيك
+
+Examples:
+
+- Grinding.
+- Washing.
+- Recycling.
+- Pelletizing.
+- Reprocessed materials.
+
+Mold and tooling services — الاسطمبات والقوالب
+
+Examples:
+
+- Mold design.
+- Mold manufacturing.
+- Mold maintenance.
+- Mold modification.
+- Mold repair.
+- Mold trials.
+
+Assembly and finishing — التجميع والتشطيب
+
+Examples:
+
+- Product assembly.
+- Printing.
+- Packaging.
+- Finishing.
+- Product labeling.
+
+Each category must have:
+
+- Its own visual.
+- Short description.
+- Relevant services.
+- Search and filtering support.
+- Links to relevant factories.
+
+10.3 Request manufacturing a plastic product
+
+Create a detailed but easy multi-step form.
+
+Arabic title:
+
+"اطلب تصنيع منتجك البلاستيكي"
+
+Collect the following information:
+
+Step 1 — Product details
+
+- Product name.
+- Product category.
+- Product description.
+- Manufacturing process.
+- Product purpose.
+
+Step 2 — Technical information
+
+- Required material.
+- PP.
+- PE.
+- HDPE.
+- LDPE.
+- PVC.
+- ABS.
+- PET.
+- PS.
+- Other materials.
+
+Additional fields:
+
+- Product dimensions.
+- Product weight.
+- Product color.
+- Product drawings.
+- Reference images.
+- Technical files.
+- Expected quality requirements.
+- Packaging requirements.
+
+Step 3 — Production requirements
+
+- Required quantity.
+- One-time production or recurring production.
+- Expected monthly quantity.
+- Required production start date.
+- Desired delivery date.
+- Is the mold available?
+- Does the customer need the factory to manufacture the mold?
+- Does the customer need material sourcing?
+
+Step 4 — Location and contact
+
+- Country.
+- City.
+- Delivery location.
+- Contact person.
+- Phone number.
+- Preferred communication method.
+- Additional notes.
+
+Allow users to upload images, drawings, and relevant files.
+
+Show a clear summary before submission.
+
+After submission, create a manufacturing request that appears in the appropriate request list.
+
+10.4 Operate an existing mold at a factory
+
+Create a dedicated workflow for customers who own a mold and need a factory to operate it.
+
+Arabic title:
+
+"لديك اسطمبة؟ ابحث عن مصنع لتشغيلها"
+
+Collect:
+
+- Mold name.
+- Product type.
+- Manufacturing process.
+- Number of cavities.
+- Mold dimensions.
+- Mold weight if known.
+- Required machine type.
+- Required machine capacity or tonnage if known.
+- Required material.
+- Product weight.
+- Expected quantity.
+- Production frequency.
+- Mold photographs.
+- Technical drawings if available.
+- Required location.
+- Additional technical notes.
+
+Let factories that match the requirements submit offers.
+
+Clearly distinguish between:
+
+- Customer-owned mold.
+- Factory-owned mold.
+- Mold manufacturing required.
+- Mold operation only.
+
+10.5 Factories offering available machines
+
+Create a workflow for factories that have available machine capacity.
+
+Arabic title:
+
+"اعرض ماكينة متاحة للتشغيل"
+
+Fields:
+
+- Factory name.
+- Manufacturing process.
+- Machine type.
+- Machine brand.
+- Model.
+- Machine capacity or tonnage.
+- Available operating hours.
+- Available shifts.
+- Current capacity.
+- Available production capacity.
+- Materials supported.
+- Products that can be manufactured.
+- Location.
+- Available production dates.
+- Photographs of the machine.
+- Contact details.
+
+Factories can update machine availability and mark a machine as:
+
+- Available.
+- Partially available.
+- Fully booked.
+- Temporarily unavailable.
+
+Do not invent exact machine specifications.
+
+10.6 Factory service providers
+
+Create a directory of factories offering contract manufacturing.
+
+Each factory profile should show:
+
+- Factory name.
+- Logo.
+- Cover image.
+- Manufacturing processes.
+- Machine list.
+- Available capacity.
+- Materials supported.
+- Products manufactured.
+- Production capabilities.
+- City and industrial area.
+- Gallery.
+- Factory description.
+- Response time if available.
+- Customer reviews.
+- Contact options.
+
+Allow users to filter factories by manufacturing process, machine type, materials, city, and availability.
+
+10.7 Manufacturing offers and quotations
+
+Factories must be able to submit structured offers in response to manufacturing requests.
+
+Offer fields:
+
+- Factory name.
+- Proposed production price.
+- Price per unit or agreed pricing basis.
+- Setup or preparation cost if applicable.
+- Minimum order quantity.
+- Estimated lead time.
+- Available production capacity.
+- Material sourcing responsibility.
+- Tooling responsibility.
+- Sample or trial availability.
+- Delivery conditions.
+- Offer expiration date.
+- Notes and terms.
+
+Customers must be able to compare offers clearly.
+
+Include:
+
+- View offer.
+- Compare offers.
+- Accept offer.
+- Reject offer.
+- Request clarification.
+- Start negotiation.
+- Mark as agreed.
+
+Do not display a fake payment or legally binding digital contract feature unless a real service is configured.
+
+10.8 Manufacturing request statuses
+
+Use the following workflow:
+
+1. New — جديد.
+2. Receiving offers — استقبال العروض.
+3. Under review — قيد المراجعة.
+4. Negotiation — تفاوض.
+5. Agreement reached — تم الاتفاق.
+6. In production — قيد التنفيذ.
+7. Completed — مكتمل.
+8. Cancelled — ملغي.
+
+Show each status clearly with a suitable visual indicator.
+
+10.9 Manufacturing filters
+
+Provide powerful but easy filters:
+
+- Manufacturing process.
+- Machine type.
+- Country.
+- City.
+- Required quantity.
+- Material.
+- Product type.
+- Mold availability.
+- Factory availability.
+- Request status.
+- Publication date.
+
+10.10 Manufacturing user journey
+
+The experience must be simple:
+
+1. Customer selects the required manufacturing service.
+2. Customer fills in the technical request.
+3. Request is published.
+4. Relevant factories can discover the request.
+5. Factories submit structured offers.
+6. Customer compares offers.
+7. Customer communicates with the selected factory.
+8. Request status is updated as the project progresses.
+
+A factory must also be able to publish its capabilities and receive matching requests.
+
+This section must have real navigation, working forms, request details, offer cards, status updates, and profile connections.
+
+---
+
+11. INTERACTIVE INDUSTRIAL FAULTS PLATFORM
+
+Create a dedicated technical community for machine faults and troubleshooting.
+
+Arabic name:
+
+"منصة الأعطال الصناعية"
+
+Fault listing page
+
+Include:
+
+- Search.
+- Machine-type filters.
+- Specialization filters.
+- Urgency filters.
+- Open or solved status.
+- Latest faults.
+- Most discussed faults.
+- Most useful solutions.
+
+Each fault card should include:
+
+- Fault title.
+- Machine type.
+- Machine model.
+- Description preview.
+- Publisher.
+- Date.
+- Urgency.
+- Status.
+- Number of solutions.
+- Relevant image or video thumbnail where available.
+
+Create a fault
+
+Fields:
+
+- Machine type.
+- Machine brand.
+- Machine model.
+- Fault title.
+- Fault description.
+- Urgency.
+- Image upload.
+- Optional video upload.
+- Additional details.
+
+Urgency values:
+
+- عاجل.
+- متوسط.
+- غير مستعجل.
+
+Fault detail page
+
+Show:
+
+- Full fault description.
+- Machine information.
+- Images or attached files.
+- Publisher profile.
+- All submitted solutions.
+- Solution ratings.
+- Best solution.
+- Add solution form.
+
+Allow users to:
+
+- Submit a solution.
+- Rate a solution.
+- Mark a helpful solution.
+- Save a fault.
+- Share a fault.
+
+Fault library
+
+Create a searchable library of solved faults.
+
+The purpose is to turn successful solutions into reusable technical knowledge.
+
+---
+
+12. INDUSTRIAL JOBS PLATFORM
+
+Create a specialized job marketplace for the plastics industry.
+
+Job listing page
+
+Include:
+
+- Search.
+- City filter.
+- Specialization filter.
+- Job type.
+- Experience level.
+- Machine type.
+- Salary range.
+
+Relevant job categories:
+
+- Injection technician.
+- Blow molding technician.
+- Extrusion technician.
+- Production engineer.
+- Maintenance engineer.
+- Quality engineer.
+- Mechanical engineer.
+- Electrical engineer.
+- Hydraulic technician.
+- Machine operator.
+- Production supervisor.
+- Factory manager.
+- Mold technician.
+
+Job details page
+
+Show:
+
+- Job title.
+- Factory.
+- Location.
+- Required specialization.
+- Machine type.
+- Required experience.
+- Salary range.
+- Work description.
+- Responsibilities.
+- Requirements.
+- Application deadline if provided.
+- Apply button.
+
+Job publishing
+
+Factories must be able to create jobs using a complete form.
+
+Fields:
+
+- Job title.
+- Job type.
+- Specialization.
+- Machine type.
+- Experience.
+- Skills.
+- Salary range.
+- City.
+- Description.
+- Requirements.
+- Contact/application method.
+
+Applicant journey
+
+- View a job.
+- Apply with the professional profile.
+- Track application status.
+- Receive notifications in the demo workflow.
+- Allow factories to view applicants.
+
+Do not present fake job listings as verified real opportunities. Label sample listings appropriately.
+
+---
+
+13. USED INDUSTRIAL EQUIPMENT MARKETPLACE
+
+Create a dedicated marketplace for used plastic manufacturing machinery, molds, spare parts, and auxiliary equipment.
+
+This market is separate from the manufacturing services marketplace.
+
+Product categories
+
+- Injection molding machines.
+- Blow molding machines.
+- Extrusion machines.
+- Plastic film lines.
+- Pipe production lines.
+- Recycling machines.
+- Industrial molds.
+- Screws and barrels.
+- Motors.
+- Hydraulic components.
+- Electrical components.
+- Dryers.
+- Grinders.
+- Mixers.
+- Chillers.
+- Compressors.
+- Auxiliary equipment.
+
+Marketplace page
+
+Include:
+
+- Search bar.
+- Category filters.
+- Location filters.
+- Price range.
+- Condition filters.
+- Grid/list view.
+- Featured listings.
+- Latest listings.
+
+Listing details
+
+Each listing should show:
+
+- Product name.
+- Category.
+- Brand.
+- Model.
+- Condition.
+- Price.
+- City.
+- Year of manufacture if known.
+- Description.
+- Up to five images.
+- Seller profile.
+- Contact information.
+- WhatsApp or internal contact action where supported.
+
+Publish an item
+
+Allow sellers to publish an item with:
+
+- Category.
+- Product name.
+- Brand.
+- Model.
+- Condition.
+- Price.
+- Currency.
+- Year if known.
+- Technical specifications.
+- Description.
+- Photos.
+- City.
+- Contact details.
+
+Condition values:
+
+- ممتازة.
+- جيدة.
+- تحتاج صيانة.
+
+---
+
+14. VIRTUAL INDUSTRIAL EXHIBITIONS
+
+Create a dedicated exhibitions section.
+
+Arabic title:
+
+"المعارض الافتراضية"
+
+The purpose is to give factories and suppliers a professional online showroom.
+
+Exhibition homepage
+
+Show:
+
+- Featured factory booths.
+- Supplier booths.
+- New exhibitors.
+- Recommended companies.
+- Search and category filters.
+
+Factory booth
+
+Include:
+
+- Factory name.
+- Factory logo.
+- Banner.
+- Company description.
+- Manufacturing processes.
+- Machine capabilities.
+- Product gallery.
+- Contact button.
+- Ratings.
+
+Supplier booth
+
+Include:
+
+- Supplier name.
+- Logo.
+- Banner.
+- Products and materials.
+- Machinery.
+- Spare parts.
+- Geographic coverage.
+- Product gallery.
+- Contact options.
+- Ratings.
+
+Every exhibition card must lead to a real booth details page.
+
+Do not make the exhibitions section a decorative gallery without useful company information.
+
+---
+
+15. INDUSTRIAL NEWS
+
+Create an organized industry news section.
+
+Categories:
+
+- Industrial market.
+- Raw materials.
+- Technology.
+- Machinery.
+- Maintenance.
+- Recycling.
+- Regulations.
+- Industry reports.
+
+Features:
+
+- News listing.
+- Article details.
+- Search.
+- Category filtering.
+- Save article.
+- Share article.
+- Follow topics.
+
+Use clearly labeled sample content during demo development.
+
+Do not falsely claim that static sample articles are live news or current market prices.
+
+Real news feeds or live market data should only be introduced through a properly configured source.
+
+---
+
+16. PROFILE, REPUTATION, AND POINTS
+
+Build a professional user profile system.
+
+Each profile should show information relevant to the account type.
+
+Include:
+
+- Profile image or company logo.
+- Cover image where appropriate.
+- Name or company name.
+- Country and city.
+- Specialization or manufacturing activities.
+- Description.
+- Experience or company capabilities.
+- Activity history.
+- Ratings.
+- Points.
+- Badges.
+- Contact options.
+
+Points system
+
+Use the original points model:
+
+- Publishing a new fault: +10 points.
+- Publishing a solution: +50 points.
+- Receiving a positive solution rating: +20 points.
+- Having a solution selected as the best solution: +100 points.
+
+Reputation levels
+
+- Beginner: 0–499 points.
+- Professional: 500–1,999 points.
+- Expert: 2,000+ points.
+
+These points are platform reputation indicators, not formal industrial certifications.
+
+Display badges and points clearly.
+
+Do not allow users to award themselves points manually.
+
+---
+
+17. GLOBAL SEARCH
+
+Create a powerful global search experience.
+
+Users must be able to search across:
+
+- Factories.
+- Suppliers.
+- Technicians.
+- Engineers.
+- Products.
+- Machinery.
+- Spare parts.
+- Molds.
+- Jobs.
+- Technical faults.
+- Manufacturing requests.
+- Manufacturing services.
+- Industrial exhibitions.
+- News.
+
+Show categorized search results.
+
+Include helpful empty states when there are no results.
+
+Search should not be a decorative field. It must actually filter and return relevant data in the implemented demo.
+
+---
+
+18. NOTIFICATIONS
+
+Create a notification center.
+
+Support notification types such as:
+
+- New manufacturing offer.
+- New response to a manufacturing request.
+- Request status update.
+- New job matching the profile.
+- New application update.
+- New solution to a fault.
+- New message or contact request.
+- New factory review.
+
+Include:
+
+- Read/unread state.
+- Mark as read.
+- Mark all as read.
+- Notification navigation to the related page.
+
+If real-time push notifications are not configured, implement a working local demo notification system and label it accordingly.
+
+---
+
+19. SETTINGS
+
+Create a complete settings page.
+
+Include:
+
+- Account information.
+- Language selection.
+- Country.
+- Notification preferences.
+- Privacy settings.
+- Password settings when authentication is configured.
+- Contact information.
+- About PLASTICO.
+- Terms and privacy links.
+
+Language switching must update the interface direction properly:
+
+Arabic: RTL.
+
+English: LTR.
+
+Do not simply translate some labels while leaving layouts incorrectly aligned.
+
+---
+
+20. USER EXPERIENCE REQUIREMENTS
+
+The platform must be extremely easy to understand.
+
+A new visitor should understand the primary purpose of the platform within a minute.
+
+Use plain Arabic interface labels.
+
+Avoid overly technical interface wording.
+
+Technical terms are acceptable where needed in manufacturing specifications, but provide Arabic descriptions or helpful explanations.
+
+Forms
+
+- Use short steps for long forms.
+- Group related fields.
+- Show required fields clearly.
+- Validate user input.
+- Display understandable error messages.
+- Show progress on multi-step forms.
+- Provide a review screen before submission.
+- Display a clear success state.
+
+Do not put every field on one overwhelming page.
+
+Navigation
+
+- Keep navigation consistent.
+- Make important actions easy to find.
+- Keep the manufacturing marketplace prominent.
+- Use breadcrumbs on deep pages.
+- Make back navigation predictable.
+
+Responsive design
+
+The interface must work correctly on:
+
+- Android phones.
+- iPhones.
+- Tablets.
+- Desktop screens.
+- Wide monitors.
+
+Do not simply shrink the desktop layout to fit a phone.
+
+Design proper mobile layouts.
+
+---
+
+21. MOTION AND INTERACTION
+
+Use subtle and professional motion.
+
+Possible effects:
+
+- Smooth page transitions.
+- Gentle card hover effects.
+- Button interaction feedback.
+- Dropdown transitions.
+- Modal animations.
+- Loading skeletons.
+- Smooth tab changes.
+- Success and error notifications.
+- Small dashboard chart animations.
+
+Use Framer Motion where it meaningfully improves the experience.
+
+Do not use excessive movement.
+
+Respect reduced-motion accessibility preferences.
+
+---
+
+22. TECHNOLOGY STACK
+
+Use a modern, maintainable frontend architecture.
+
+Preferred stack:
+
+- React 18 or newer.
+- TypeScript.
+- Vite.
+- Tailwind CSS.
+- React Router.
+- shadcn/ui where appropriate.
+- Lucide React.
+- Zustand or React Context for application state.
+- React Hook Form.
+- Zod validation.
+- TanStack Query when a backend is connected.
+- Framer Motion for selected animations.
+
+Use reusable components.
+
+Keep pages, components, data, hooks, and utilities organized.
+
+Suggested project structure:
+
+"/src/components/"
+
+"/src/pages/"
+
+"/src/layouts/"
+
+"/src/features/"
+
+"/src/data/"
+
+"/src/hooks/"
+
+"/src/store/"
+
+"/src/types/"
+
+"/src/lib/"
+
+"/src/assets/"
+
+"/public/brand/"
+
+"/public/images/plastico/"
+
+Use reusable components for:
+
+- Cards.
+- Buttons.
+- Inputs.
+- Filters.
+- Search.
+- Modals.
+- Navigation.
+- Profile summaries.
+- Status badges.
+- Forms.
+- Empty states.
+- Loading states.
+
+Do not put the entire application into one huge component.
+
+---
+
+23. DATA AND BACKEND READINESS
+
+Build the application so it can later connect to a real backend.
+
+Prefer Supabase or Firebase for:
+
+- Authentication.
+- Database.
+- File storage.
+- User profiles.
+- Listings.
+- Manufacturing requests.
+- Offers.
+- Notifications.
+
+If a real backend is available and properly configured, integrate it using the appropriate credentials and services.
+
+If no backend is configured, use clearly identified demo data and local persistence for the prototype.
+
+Demo mode requirements:
+
+- Use realistic seed data.
+- Make forms actually add records to the local demo state.
+- Persist suitable demo records using localStorage or another appropriate browser storage mechanism.
+- Ensure searches and filters work with those records.
+- Ensure status changes update the interface.
+- Keep data access behind reusable service functions so the backend can replace the demo implementation later.
+
+Important limitations:
+
+- Do not describe localStorage as secure authentication.
+- Do not claim local browser data is shared with other users.
+- Do not claim that a manufacturing request has been delivered to real factories unless a real backend and notification system are connected.
+- Do not claim that an offer is a legally binding agreement.
+- Do not expose private credentials or API keys in frontend source code.
+
+Make the difference between demo functionality and production integrations clear.
+
+---
+
+24. SAMPLE DATA AND CONTENT QUALITY
+
+The platform must look populated and realistic during demonstration.
+
+Create representative sample records for:
+
+- Technicians.
+- Engineers.
+- Factories.
+- Suppliers.
+- Traders.
+- Fault reports.
+- Technical solutions.
+- Jobs.
+- Used machines.
+- Industrial molds.
+- Spare parts.
+- Manufacturing requests.
+- Manufacturing offers.
+- Factory service profiles.
+- Exhibition booths.
+- News articles.
+
+Use appropriate generated local images for sample listings wherever suitable.
+
+Use realistic manufacturing terminology.
+
+Use clear Arabic content, not meaningless placeholder text.
+
+Avoid repeating the same generic text in every card.
+
+Mark fictional sample content as demo content where there could be confusion with real businesses, live job openings, market prices, or actual manufacturing requests.
+
+---
+
+25. ACCESSIBILITY AND PERFORMANCE
+
+Implement:
+
+- Semantic HTML.
+- Proper labels for inputs.
+- Keyboard navigation.
+- Visible focus indicators.
+- Accessible dialogs.
+- Readable color contrast.
+- Meaningful alt text.
+- Responsive typography.
+- Lazy loading for non-critical imagery.
+- Optimized local image assets.
+- Sensible component rendering.
+- Good loading and empty states.
+
+Avoid unnecessary heavy 3D effects.
+
+Use Three.js or React Three Fiber only if a specific section genuinely benefits from it. Do not add heavy 3D elements just for decoration.
+
+The website must remain smooth on ordinary Android phones.
+
+---
+
+26. QUALITY ASSURANCE AND ACCEPTANCE CHECKLIST
+
+Before considering the work complete, test the complete application.
+
+Navigation
+
+- All routes open correctly.
+- All navigation links work.
+- No broken routes.
+- No blank pages.
+- Back navigation works.
+- Active navigation state is correct.
+
+Forms
+
+- All main forms accept appropriate input.
+- Required field validation works.
+- Error messages are understandable.
+- Successful submissions update the demo data.
+- Form data is not silently discarded.
+
+Manufacturing marketplace
+
+- New manufacturing requests can be created.
+- Request details open correctly.
+- Factories can submit offers in demo mode.
+- Offers can be compared.
+- Request status can be changed.
+- Factory service profiles open correctly.
+- Machine availability can be displayed and updated in demo mode.
+- Filters return the correct results.
+
+Other platform modules
+
+- Faults can be published.
+- Solutions can be submitted.
+- Points update in the demo.
+- Jobs can be created and viewed.
+- Users can apply in the demo.
+- Equipment listings can be created.
+- Product details display correctly.
+- Exhibition booths open.
+- News articles can be saved.
+- Notifications can be marked as read.
+
+Language and layout
+
+- Arabic RTL works throughout.
+- English LTR works throughout.
+- No broken alignment.
+- No clipped text.
+- No horizontal scrolling caused by layout errors.
+
+Images
+
+- All generated image files are saved locally.
+- Images load using local project paths.
+- No external image URLs are used.
+- No broken image placeholders remain.
+- Images have appropriate sizing and alt text.
+
+Responsive testing
+
+Test at:
+
+- Small Android screen.
+- Standard mobile screen.
+- Tablet.
+- Desktop.
+- Wide desktop.
+
+Final quality
+
+- Consistent branding.
+- Consistent typography.
+- High-quality visual hierarchy.
+- Professional industrial look.
+- Clear user journeys.
+- No dead buttons.
+- No decorative elements pretending to be features.
+- No unnecessary interface complexity.
+
+---
+
+27. IMPLEMENTATION PRIORITY
+
+Build the platform in a structured order without sacrificing the final quality.
+
+Phase 1 — Brand and visual foundation
+
+1. Create the original PLASTICO logo.
+2. Establish the complete design system.
+3. Generate and save the local image assets.
+4. Build the main responsive layouts.
+5. Build the public homepage.
+
+Phase 2 — Core application
+
+1. Registration and login interface.
+2. Account type selection.
+3. Profile setup.
+4. Main dashboard.
+5. Navigation.
+6. Profile pages.
+7. Settings.
+
+Phase 3 — Main industry modules
+
+1. Manufacturing Services Marketplace.
+2. Manufacturing requests and offers.
+3. Factory service directory.
+4. Machine availability.
+5. Industrial faults.
+6. Industrial jobs.
+7. Used equipment marketplace.
+
+Phase 4 — Community and discovery
+
+1. Virtual exhibitions.
+2. Factory and supplier profiles.
+3. Industrial news.
+4. Global search.
+5. Notifications.
+6. Points and reputation.
+
+Phase 5 — Testing and refinement
+
+1. Complete responsive testing.
+2. Fix navigation and form errors.
+3. Check all images.
+4. Check RTL and LTR.
+5. Improve performance.
+6. Refine details and micro-interactions.
+
+Do not leave the major modules as empty placeholders.
+
+---
+
+28. FINAL CREATIVE DIRECTION
+
+The final PLASTICO experience should combine the following qualities:
+
+- The visual precision of a world-class SaaS platform.
+- The clarity of a professional industrial directory.
+- The usefulness of a specialized marketplace.
+- The depth of a manufacturing services network.
+- The simplicity of a well-designed mobile application.
+
+Use the quality and clarity associated with excellent products such as Linear, Stripe, Vercel, and Notion as general inspiration only.
+
+Do not copy their layouts, logos, or brand identities.
+
+PLASTICO must have its own recognizable visual language.
+
+The most important design principle is:
+
+Make a complex industrial ecosystem feel simple, organized, trustworthy, and easy to use.
+
+A factory owner should be able to find a service quickly.
+
+A customer should be able to publish a manufacturing request without confusion.
+
+A technician should be able to find a technical solution easily.
+
+A supplier should be able to present products professionally.
+
+A factory should be able to show its actual manufacturing capabilities.
+
+A visitor should immediately understand what PLASTICO offers.
+
+---
+
+FINAL DELIVERY INSTRUCTION
+
+Start building the complete PLASTICO platform now.
+
+Do not respond with only a plan, a design description, or a homepage concept.
+
+Implement the actual application, pages, routes, components, generated local image assets, brand identity, interactions, demo data, and responsive layouts.
+
+Prioritize the complete user experience and the manufacturing services marketplace.
+
+The final result must be a premium, coherent, multi-page PLASTICO platform that is ready for demonstration and structured for future production deployment.
+
+PLASTICO — Building the Future of the Arab Plastics Industry.

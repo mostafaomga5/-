@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" fill="none">
+  <defs>
+    <linearGradient id="bgSplash" x1="0" y1="0" x2="600" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#071936"/>
+      <stop offset="55%" stop-color="#0C2B5E"/>
+      <stop offset="100%" stop-color="#061329"/>
+    </linearGradient>
+    <linearGradient id="steelMold" x1="300" y1="80" x2="560" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="50%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <radialGradient id="pelletBlue" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="55%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bgSplash)"/>
+  <!-- Blurred industrial background highlights -->
+  <circle cx="140" cy="110" r="95" fill="#1D6BF3" fill-opacity="0.22"/>
+  <circle cx="460" cy="90" r="80" fill="#F59E0B" fill-opacity="0.14"/>
+  <!-- Hopper & barrel silhouette on left -->
+  <path d="M60 30H190L165 155H85L60 30Z" fill="#475569" fill-opacity="0.45"/>
+  <rect x="92" y="155" width="66" height="95" rx="8" fill="#334155" fill-opacity="0.5"/>
+  <!-- Precision Steel Injection Mold Block on right -->
+  <rect x="330" y="105" width="235" height="215" rx="14" fill="url(#steelMold)" stroke="#64748B" stroke-width="2" stroke-opacity="0.45"/>
+  <circle cx="362" cy="138" r="14" fill="#0F172A" stroke="#475569" stroke-width="3"/>
+  <circle cx="530" cy="138" r="14" fill="#0F172A" stroke="#475569" stroke-width="3"/>
+  <circle cx="362" cy="285" r="14" fill="#0F172A" stroke="#475569" stroke-width="3"/>
+  <circle cx="530" cy="285" r="14" fill="#0F172A" stroke="#475569" stroke-width="3"/>
+  <rect x="392" y="148" width="110" height="128" rx="8" fill="#1E293B" stroke="#475569" stroke-width="1.5"/>
+  <text x="405" y="185" fill="#94A3B8" font-family="Plus Jakarta Sans, sans-serif" font-size="13" font-weight="600" letter-spacing="1">BETTER</text>
+  <text x="405" y="206" fill="#94A3B8" font-family="Plus Jakarta Sans, sans-serif" font-size="13" font-weight="600" letter-spacing="1">MATERIALS</text>
+  <text x="405" y="227" fill="#94A3B8" font-family="Plus Jakarta Sans, sans-serif" font-size="13" font-weight="600" letter-spacing="1">BRIGHTER</text>
+  <text x="405" y="248" fill="#94A3B8" font-family="Plus Jakarta Sans, sans-serif" font-size="13" font-weight="600" letter-spacing="1">POSSIBILITIES</text>
+  <!-- Pile of glossy blue polymer pellets in foreground -->
+  <g>
+    <ellipse cx="300" cy="345" rx="280" ry="65" fill="#0B2559"/>
+    <circle cx="95" cy="330" r="12" fill="url(#pelletBlue)"/>
+    <circle cx="122" cy="322" r="13" fill="url(#pelletBlue)"/>
+    <circle cx="150" cy="316" r="12" fill="url(#pelletBlue)"/>
+    <circle cx="178" cy="308" r="14" fill="url(#pelletBlue)"/>
+    <circle cx="206" cy="302" r="13" fill="url(#pelletBlue)"/>
+    <circle cx="235" cy="296" r="14" fill="url(#pelletBlue)"/>
+    <circle cx="264" cy="292" r="13" fill="url(#pelletBlue)"/>
+    <circle cx="292" cy="290" r="14" fill="url(#pelletBlue)"/>
+    <circle cx="320" cy="293" r="13" fill="url(#pelletBlue)"/>
+    <circle cx="348" cy="298" r="14" fill="url(#pelletBlue)"/>
+    <circle cx="376" cy="304" r="12" fill="url(#pelletBlue)"/>
+    <circle cx="404" cy="312" r="13" fill="url(#pelletBlue)"/>
+    <circle cx="432" cy="318" r="12" fill="url(#pelletBlue)"/>
+    <circle cx="460" cy="325" r="13" fill="url(#pelletBlue)"/>
+    <circle cx="490" cy="332" r="12" fill="url(#pelletBlue)"/>
+    <circle cx="136" cy="340" r="14" fill="url(#pelletBlue)"/>
+    <circle cx="166" cy="332" r="13" fill="url(#pelletBlue)"/>
+    <circle cx="196" cy="324" r="15" fill="url(#pelletBlue)"/>
+    <circle cx="226" cy="318" r="14" fill="url(#pelletBlue)"/>
+    <circle cx="256" cy="314" r="15" fill="url(#pelletBlue)"/>
+    <circle cx="286" cy="312" r="14" fill="url(#pelletBlue)"/>
+    <circle cx="316" cy="314" r="15" fill="url(#pelletBlue)"/>
+    <circle cx="346" cy="318" r="14" fill="url(#pelletBlue)"/>
+    <circle cx="376" cy="325" r="14" fill="url(#pelletBlue)"/>
+    <circle cx="406" cy="332" r="13" fill="url(#pelletBlue)"/>
+    <circle cx="438" cy="338" r="14" fill="url(#pelletBlue)"/>
+  </g>
+</svg>

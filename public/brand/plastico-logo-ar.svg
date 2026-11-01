@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" fill="none">
+  <defs>
+    <linearGradient id="logoArBlue" x1="4" y1="4" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="6" width="52" height="52" rx="13" fill="#0D111C" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <path d="M17 45V21C17 17.134 20.134 14 24 14H34C39.5228 14 44 18.4772 44 24C44 29.5228 39.5228 34 34 34H25V45H17Z" fill="url(#logoArBlue)"/>
+  <circle cx="33.5" cy="24" r="4" fill="#0D111C"/>
+  <path d="M30 38H40L45 45H33L30 38Z" fill="#F97316"/>
+  <text x="70" y="41" fill="#F1F5FD" font-family="'IBM Plex Sans Arabic', sans-serif" font-weight="700" font-size="28">بلاستيكو</text>
+  <text x="188" y="39" fill="#94A3B8" font-family="'Plus Jakarta Sans', sans-serif" font-weight="600" font-size="13" letter-spacing="1">PLASTICO</text>
+</svg>

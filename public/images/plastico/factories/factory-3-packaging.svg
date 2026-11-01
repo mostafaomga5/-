@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" fill="none">
+  <rect width="600" height="320" fill="#E2E8F0"/>
+  <!-- Exhibition Hall Ceiling -->
+  <rect width="600" height="65" fill="#0F172A"/>
+  <line x1="0" y1="45" x2="600" y2="45" stroke="#38BDF8" stroke-width="2" stroke-opacity="0.5"/>
+  <!-- Floor -->
+  <polygon points="0,320 70,235 530,235 600,320" fill="#CBD5E1"/>
+  <!-- Booth Structure -->
+  <rect x="75" y="55" width="450" height="185" rx="8" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="4"/>
+  <rect x="75" y="55" width="450" height="44" rx="4" fill="#0B2A5B"/>
+  <text x="300" y="83" text-anchor="middle" fill="#FFFFFF" font-family="Plus Jakarta Sans, sans-serif" font-size="20" font-weight="800" letter-spacing="2">UNITED PLASTICS</text>
+  <!-- Display Counters & Screens -->
+  <rect x="105" y="118" width="120" height="75" rx="6" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2"/>
+  <rect x="240" y="118" width="120" height="75" rx="6" fill="#0B2A5B"/>
+  <text x="300" y="160" text-anchor="middle" fill="#60A5FA" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="700">ISO 9001 • HDPE / PP</text>
+  <rect x="375" y="118" width="120" height="75" rx="6" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2"/>
+  <!-- Reception Desk -->
+  <rect x="235" y="202" width="130" height="42" rx="6" fill="#1D4ED8"/>
+  <text x="300" y="228" text-anchor="middle" fill="#FFFFFF" font-family="Plus Jakarta Sans, sans-serif" font-size="12" font-weight="700">PLASTICO EXPO</text>
+</svg>

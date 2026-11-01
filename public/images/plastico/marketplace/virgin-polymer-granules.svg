@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" fill="none">
+  <rect width="400" height="280" fill="#334155"/>
+  <ellipse cx="200" cy="165" rx="175" ry="95" fill="#E2E8F0"/>
+  <ellipse cx="200" cy="155" rx="155" ry="82" fill="#F8FAFC"/>
+  <!-- White Polymer Granules Texture -->
+  <g fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5">
+    <ellipse cx="140" cy="130" rx="12" ry="7" transform="rotate(-15 140 130)"/>
+    <ellipse cx="168" cy="122" rx="12" ry="7" transform="rotate(20 168 122)"/>
+    <ellipse cx="195" cy="116" rx="13" ry="8"/>
+    <ellipse cx="225" cy="122" rx="12" ry="7" transform="rotate(-25 225 122)"/>
+    <ellipse cx="255" cy="132" rx="12" ry="7" transform="rotate(15 255 132)"/>
+    <ellipse cx="120" cy="150" rx="13" ry="7" transform="rotate(10 120 150)"/>
+    <ellipse cx="152" cy="145" rx="13" ry="8" transform="rotate(-12 152 145)"/>
+    <ellipse cx="184" cy="140" rx="14" ry="8" transform="rotate(8 184 140)"/>
+    <ellipse cx="215" cy="142" rx="13" ry="8" transform="rotate(-18 215 142)"/>
+    <ellipse cx="245" cy="150" rx="13" ry="7" transform="rotate(22 245 150)"/>
+    <ellipse cx="275" cy="156" rx="12" ry="7" transform="rotate(-10 275 156)"/>
+    <ellipse cx="138" cy="172" rx="13" ry="8" transform="rotate(-8 138 172)"/>
+    <ellipse cx="170" cy="166" rx="14" ry="8" transform="rotate(14 170 166)"/>
+    <ellipse cx="202" cy="165" rx="14" ry="8" transform="rotate(-6 202 165)"/>
+    <ellipse cx="234" cy="170" rx="13" ry="8" transform="rotate(18 234 170)"/>
+    <ellipse cx="264" cy="176" rx="12" ry="7" transform="rotate(-20 264 176)"/>
+    <ellipse cx="160" cy="190" rx="13" ry="7" transform="rotate(12 160 190)"/>
+    <ellipse cx="195" cy="188" rx="14" ry="8" transform="rotate(-10 195 188)"/>
+    <ellipse cx="228" cy="192" rx="13" ry="7" transform="rotate(8 228 192)"/>
+  </g>
+</svg>
