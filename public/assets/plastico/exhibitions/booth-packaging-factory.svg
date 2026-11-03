@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="hallBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#071A33"/>
+      <stop offset="55%" stop-color="#0E2B56"/>
+      <stop offset="100%" stop-color="#071A33"/>
+    </linearGradient>
+    <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#102A52"/>
+      <stop offset="100%" stop-color="#051226"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#hallBg)"/>
+  <!-- Architectural Ceiling Trusses & Spotlights -->
+  <line x1="0" y1="52" x2="800" y2="52" stroke="#1E3A5F" stroke-width="4"/>
+  <line x1="0" y1="78" x2="800" y2="78" stroke="#FF8A2A" stroke-width="2" stroke-opacity="0.7"/>
+  <circle cx="160" cy="52" r="8" fill="#27BED6"/>
+  <circle cx="400" cy="52" r="8" fill="#FF8A2A"/>
+  <circle cx="640" cy="52" r="8" fill="#27BED6"/>
+
+  <!-- Showroom Floor -->
+  <polygon points="0,330 800,330 800,450 0,450" fill="url(#floorGrad)"/>
+  <line x1="0" y1="330" x2="800" y2="330" stroke="#FF8A2A" stroke-width="2.5"/>
+
+  <!-- Main Industrial Pavilion Arch -->
+  <rect x="64" y="96" width="672" height="234" rx="14" fill="#0B2244" stroke="#1769E8" stroke-width="2"/>
+  <rect x="64" y="96" width="672" height="48" rx="12" fill="#071A33" stroke="#FF8A2A" stroke-width="1.5"/>
+  <text x="400" y="126" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="18" font-weight="bold">PACKAGING, THERMOFORMING &amp; BLOWN FILM PLANT</text>
+
+  <!-- Left Machinery Display Bay -->
+  <rect x="96" y="168" width="280" height="142" rx="10" fill="#071A33" stroke="#27BED6" stroke-width="1.5"/>
+  <rect x="118" y="204" width="140" height="76" rx="6" fill="#1769E8"/>
+  <rect x="258" y="218" width="90" height="62" rx="6" fill="#94A3B8"/>
+  <circle cx="148" cy="238" r="12" fill="#FF8A2A"/>
+  <text x="236" y="192" text-anchor="middle" fill="#27BED6" font-family="monospace" font-size="11" font-weight="bold">THERMOFORM-3000 &amp; FILM TOWER</text>
+
+  <!-- Right Technical Specification & Product Showcase Wall -->
+  <rect x="408" y="168" width="296" height="142" rx="10" fill="#071A33" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="556" y="200" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="13" font-weight="bold">High-Speed Food &amp; Medical Packaging Production Lines</text>
+  <rect x="436" y="220" width="240" height="32" rx="6" fill="#0E2B56" stroke="#FF8A2A"/>
+  <text x="556" y="241" text-anchor="middle" fill="#FF8A2A" font-family="monospace" font-size="11" font-weight="bold">OUTPUT: 42 m/min • ISO 9001 QC CERTIFIED</text>
+  <rect x="436" y="264" width="72" height="28" rx="5" fill="#1769E8"/>
+  <rect x="520" y="264" width="72" height="28" rx="5" fill="#27BED6"/>
+  <rect x="604" y="264" width="72" height="28" rx="5" fill="#FF8A2A"/>
+</svg>

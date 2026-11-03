@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 540" fill="none">
+  <defs>
+    <linearGradient id="bfNavy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#11346A"/>
+      <stop offset="100%" stop-color="#071A33"/>
+    </linearGradient>
+    <linearGradient id="filmBubble" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#E2E8F0" stop-opacity="0.75"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#94A3B8" stop-opacity="0.8"/>
+    </linearGradient>
+    <filter id="bfShadow" x="-8%" y="-8%" width="116%" height="120%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#071A33" flood-opacity="0.38"/>
+    </filter>
+  </defs>
+  <g filter="url(#bfShadow)">
+    <!-- Vertical Tower Frame -->
+    <rect x="136" y="38" width="22" height="390" rx="4" fill="url(#bfNavy)" stroke="#1769E8"/>
+    <rect x="356" y="38" width="22" height="390" rx="4" fill="url(#bfNavy)" stroke="#1769E8"/>
+    <rect x="136" y="42" width="242" height="24" rx="4" fill="#1769E8"/>
+    <rect x="164" y="72" width="186" height="16" rx="6" fill="#94A3B8"/>
+    <!-- Web Pulling Diagonal Film Sheet -->
+    <polygon points="248,68 292,68 418,288 352,288" fill="url(#filmBubble)"/>
+    <!-- Blown Film Bubble -->
+    <path d="M222 364 C188 330 192 162 216 142 H298 C322 162 326 330 292 364 Z" fill="url(#filmBubble)" stroke="#CBD5E1" stroke-width="2"/>
+    <rect x="202" y="134" width="110" height="14" rx="5" fill="#1769E8"/>
+    <!-- Circular Die Head with Glowing Melt Ring -->
+    <rect x="218" y="364" width="78" height="44" rx="6" fill="#CBD5E1" stroke="#475569" stroke-width="2"/>
+    <ellipse cx="257" cy="364" rx="28" ry="6" fill="#FF8A2A"/>
+    <!-- Bottom Extruder & Right Film Roll Winder -->
+    <rect x="86" y="416" width="268" height="68" rx="14" fill="url(#bfNavy)" stroke="#FF8A2A" stroke-width="2"/>
+    <ellipse cx="398" cy="316" rx="54" ry="46" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="3"/>
+    <circle cx="418" cy="316" r="14" fill="#FF8A2A"/>
+    <rect x="336" y="316" width="136" height="148" rx="8" fill="url(#bfNavy)" stroke="#1769E8" stroke-width="2"/>
+    <text x="404" y="424" text-anchor="middle" fill="#27BED6" font-family="monospace" font-size="7.5" font-weight="bold">WINDER • 42 m/min</text>
+  </g>
+</svg>

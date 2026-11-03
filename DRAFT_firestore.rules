@@ -1,0 +1,559 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Pillar 1 & Phase 4.1: Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Phase 3: Hardened Global Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function authorProfileExists() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // Blueprint Validation Helpers (Pillar 2: Anti-Update-Gap)
+    function isValidUserPublicProfile(data) {
+      return data.keys().hasAll([
+          'uid',
+          'accountType',
+          'nameAr',
+          'nameEn',
+          'titleAr',
+          'city',
+          'points',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'uid',
+          'accountType',
+          'nameAr',
+          'nameEn',
+          'titleAr',
+          'city',
+          'points',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && isValidId(data.uid)
+        && data.uid == request.auth.uid
+        && data.accountType is string
+        && data.accountType.size() >= 4
+        && data.accountType.size() <= 20
+        && data.accountType in ['engineer', 'technician', 'factory', 'supplier', 'user']
+        && data.nameAr is string
+        && data.nameAr.size() >= 2
+        && data.nameAr.size() <= 120
+        && data.nameEn is string
+        && data.nameEn.size() >= 2
+        && data.nameEn.size() <= 120
+        && data.titleAr is string
+        && data.titleAr.size() >= 2
+        && data.titleAr.size() <= 160
+        && data.city is string
+        && data.city.size() >= 2
+        && data.city.size() <= 80
+        && data.points is int
+        && data.points >= 0
+        && data.points <= 1000000
+        && data.visibility is string
+        && data.visibility.size() >= 6
+        && data.visibility.size() <= 10
+        && data.visibility in ['public', 'private']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidUserPrivateInfo(data) {
+      return data.keys().hasAll(['uid', 'email', 'phone', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'email', 'phone', 'createdAt', 'updatedAt'])
+        && isValidId(data.uid)
+        && data.uid == request.auth.uid
+        && data.email is string
+        && data.email.size() >= 3
+        && data.email.size() <= 160
+        && data.phone is string
+        && data.phone.size() >= 5
+        && data.phone.size() <= 30
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidManufacturingRequestDoc(data) {
+      return data.keys().hasAll([
+          'id',
+          'authorId',
+          'referenceCode',
+          'titleAr',
+          'processId',
+          'material',
+          'quantity',
+          'city',
+          'descriptionAr',
+          'publisherName',
+          'status',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'authorId',
+          'referenceCode',
+          'titleAr',
+          'processId',
+          'material',
+          'quantity',
+          'city',
+          'descriptionAr',
+          'publisherName',
+          'status',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.authorId)
+        && data.authorId == request.auth.uid
+        && data.referenceCode is string
+        && data.referenceCode.size() >= 3
+        && data.referenceCode.size() <= 40
+        && data.titleAr is string
+        && data.titleAr.size() >= 3
+        && data.titleAr.size() <= 160
+        && data.processId is string
+        && data.processId.size() >= 3
+        && data.processId.size() <= 30
+        && data.processId in ['injection', 'blow', 'thermoforming', 'extrusion', 'film', 'recycling', 'molds']
+        && data.material is string
+        && data.material.size() >= 2
+        && data.material.size() <= 60
+        && data.quantity is int
+        && data.quantity > 0
+        && data.quantity <= 100000000
+        && data.city is string
+        && data.city.size() >= 2
+        && data.city.size() <= 80
+        && data.descriptionAr is string
+        && data.descriptionAr.size() >= 5
+        && data.descriptionAr.size() <= 2000
+        && data.publisherName is string
+        && data.publisherName.size() >= 2
+        && data.publisherName.size() <= 120
+        && data.status is string
+        && data.status.size() >= 3
+        && data.status.size() <= 30
+        && data.status in ['new', 'receiving_offers', 'under_negotiation', 'awarded', 'completed', 'cancelled']
+        && data.visibility is string
+        && data.visibility.size() >= 6
+        && data.visibility.size() <= 10
+        && data.visibility in ['public', 'private']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidIndustrialFaultDoc(data) {
+      return data.keys().hasAll([
+          'id',
+          'authorId',
+          'titleAr',
+          'machineType',
+          'polymerMaterial',
+          'descriptionAr',
+          'publisherName',
+          'city',
+          'status',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'authorId',
+          'titleAr',
+          'machineType',
+          'polymerMaterial',
+          'descriptionAr',
+          'publisherName',
+          'city',
+          'status',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.authorId)
+        && data.authorId == request.auth.uid
+        && data.titleAr is string
+        && data.titleAr.size() >= 3
+        && data.titleAr.size() <= 180
+        && data.machineType is string
+        && data.machineType.size() >= 2
+        && data.machineType.size() <= 100
+        && data.polymerMaterial is string
+        && data.polymerMaterial.size() >= 2
+        && data.polymerMaterial.size() <= 60
+        && data.descriptionAr is string
+        && data.descriptionAr.size() >= 5
+        && data.descriptionAr.size() <= 2000
+        && data.publisherName is string
+        && data.publisherName.size() >= 2
+        && data.publisherName.size() <= 120
+        && data.city is string
+        && data.city.size() >= 2
+        && data.city.size() <= 80
+        && data.status is string
+        && data.status.size() >= 4
+        && data.status.size() <= 20
+        && data.status in ['open', 'solved', 'closed']
+        && data.visibility is string
+        && data.visibility.size() >= 6
+        && data.visibility.size() <= 10
+        && data.visibility in ['public', 'private']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidIndustrialJobDoc(data) {
+      return data.keys().hasAll([
+          'id',
+          'authorId',
+          'titleAr',
+          'companyName',
+          'city',
+          'salaryRange',
+          'status',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'authorId',
+          'titleAr',
+          'companyName',
+          'city',
+          'salaryRange',
+          'status',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.authorId)
+        && data.authorId == request.auth.uid
+        && data.titleAr is string
+        && data.titleAr.size() >= 3
+        && data.titleAr.size() <= 160
+        && data.companyName is string
+        && data.companyName.size() >= 2
+        && data.companyName.size() <= 140
+        && data.city is string
+        && data.city.size() >= 2
+        && data.city.size() <= 80
+        && data.salaryRange is string
+        && data.salaryRange.size() >= 2
+        && data.salaryRange.size() <= 80
+        && data.status is string
+        && data.status.size() >= 4
+        && data.status.size() <= 15
+        && data.status in ['open', 'closed']
+        && data.visibility is string
+        && data.visibility.size() >= 6
+        && data.visibility.size() <= 10
+        && data.visibility in ['public', 'private']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidMarketListingDoc(data) {
+      return data.keys().hasAll([
+          'id',
+          'authorId',
+          'titleAr',
+          'category',
+          'conditionAr',
+          'price',
+          'currency',
+          'city',
+          'sellerName',
+          'image',
+          'status',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'authorId',
+          'titleAr',
+          'category',
+          'conditionAr',
+          'price',
+          'currency',
+          'city',
+          'sellerName',
+          'image',
+          'status',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.authorId)
+        && data.authorId == request.auth.uid
+        && data.titleAr is string
+        && data.titleAr.size() >= 3
+        && data.titleAr.size() <= 160
+        && data.category is string
+        && data.category.size() >= 2
+        && data.category.size() <= 60
+        && data.conditionAr is string
+        && data.conditionAr.size() >= 2
+        && data.conditionAr.size() <= 80
+        && data.price is number
+        && data.price >= 0
+        && data.price <= 100000000
+        && data.currency is string
+        && data.currency.size() >= 2
+        && data.currency.size() <= 10
+        && data.city is string
+        && data.city.size() >= 2
+        && data.city.size() <= 80
+        && data.sellerName is string
+        && data.sellerName.size() >= 2
+        && data.sellerName.size() <= 120
+        && data.image is string
+        && data.image.size() >= 3
+        && data.image.size() <= 300
+        && data.status is string
+        && data.status.size() >= 4
+        && data.status.size() <= 20
+        && data.status in ['active', 'sold', 'archived']
+        && data.visibility is string
+        && data.visibility.size() >= 6
+        && data.visibility.size() <= 10
+        && data.visibility in ['public', 'private']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // 1. Public User Profiles (No PII)
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (existing().visibility == 'public' || isOwner(userId));
+      allow list: if isSignedIn() && (existing().visibility == 'public' || existing().uid == request.auth.uid);
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && isOwner(userId)
+        && isValidUserPublicProfile(incoming())
+        && incoming().uid == userId
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(userId)
+        && isValidUserPublicProfile(incoming())
+        && isOwner(userId)
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          // Action: Update Profile Details
+          incoming().diff(existing()).affectedKeys().hasOnly(['nameAr', 'nameEn', 'titleAr', 'city', 'visibility', 'accountType', 'updatedAt'])
+          ||
+          // Action: Update Reputation Points
+          incoming().diff(existing()).affectedKeys().hasOnly(['points', 'updatedAt'])
+        );
+      allow delete: if isVerifiedUser() && isValidId(userId) && isOwner(userId);
+
+      // 2. Isolated Private PII Subcollection (Pillar 1 Master Gate + Pillar 6 PII Isolation)
+      match /private/{docId} {
+        allow get: if isSignedIn()
+          && isValidId(userId)
+          && isValidId(docId)
+          && isOwner(userId)
+          && get(/databases/$(database)/documents/users/$(userId)).data.uid == request.auth.uid;
+        allow list: if isSignedIn() && isOwner(userId) && existing().uid == request.auth.uid;
+        allow create: if isVerifiedUser()
+          && isValidId(userId)
+          && isValidId(docId)
+          && isOwner(userId)
+          && isValidUserPrivateInfo(incoming())
+          && incoming().uid == userId
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && get(/databases/$(database)/documents/users/$(userId)).data.uid == request.auth.uid;
+        allow update: if isVerifiedUser()
+          && isValidId(userId)
+          && isValidId(docId)
+          && isValidUserPrivateInfo(incoming())
+          && isOwner(userId)
+          && incoming().uid == existing().uid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly(['email', 'phone', 'updatedAt'])
+          && get(/databases/$(database)/documents/users/$(userId)).data.uid == request.auth.uid;
+        allow delete: if isVerifiedUser()
+          && isValidId(userId)
+          && isValidId(docId)
+          && isOwner(userId)
+          && get(/databases/$(database)/documents/users/$(userId)).data.uid == request.auth.uid;
+      }
+    }
+
+    // 3. Manufacturing RFQ Requests
+    match /manufacturingRequests/{requestId} {
+      allow get: if isSignedIn() && isValidId(requestId) && (existing().visibility == 'public' || existing().authorId == request.auth.uid);
+      allow list: if isSignedIn() && (existing().visibility == 'public' || existing().authorId == request.auth.uid);
+      allow create: if isVerifiedUser()
+        && isValidId(requestId)
+        && isValidManufacturingRequestDoc(incoming())
+        && incoming().id == requestId
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && authorProfileExists();
+      allow update: if isVerifiedUser()
+        && isValidId(requestId)
+        && isValidManufacturingRequestDoc(incoming())
+        && existing().authorId == request.auth.uid
+        && incoming().id == existing().id
+        && incoming().authorId == existing().authorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && existing().status != 'completed'
+        && existing().status != 'cancelled'
+        && (
+          // Action: Update RFQ Status
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          ||
+          // Action: Edit RFQ Specs
+          incoming().diff(existing()).affectedKeys().hasOnly(['titleAr', 'material', 'quantity', 'city', 'descriptionAr', 'visibility', 'updatedAt'])
+        );
+      allow delete: if isVerifiedUser()
+        && isValidId(requestId)
+        && existing().authorId == request.auth.uid;
+    }
+
+    // 4. Industrial Faults
+    match /faults/{faultId} {
+      allow get: if isSignedIn() && isValidId(faultId) && (existing().visibility == 'public' || existing().authorId == request.auth.uid);
+      allow list: if isSignedIn() && (existing().visibility == 'public' || existing().authorId == request.auth.uid);
+      allow create: if isVerifiedUser()
+        && isValidId(faultId)
+        && isValidIndustrialFaultDoc(incoming())
+        && incoming().id == faultId
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && authorProfileExists();
+      allow update: if isVerifiedUser()
+        && isValidId(faultId)
+        && isValidIndustrialFaultDoc(incoming())
+        && existing().authorId == request.auth.uid
+        && incoming().id == existing().id
+        && incoming().authorId == existing().authorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && existing().status != 'closed'
+        && (
+          // Action: Mark Fault Solved or Closed
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          ||
+          // Action: Edit Fault Details
+          incoming().diff(existing()).affectedKeys().hasOnly(['titleAr', 'machineType', 'polymerMaterial', 'descriptionAr', 'visibility', 'updatedAt'])
+        );
+      allow delete: if isVerifiedUser()
+        && isValidId(faultId)
+        && existing().authorId == request.auth.uid;
+    }
+
+    // 5. Industrial Jobs
+    match /jobs/{jobId} {
+      allow get: if isSignedIn() && isValidId(jobId) && (existing().visibility == 'public' || existing().authorId == request.auth.uid);
+      allow list: if isSignedIn() && (existing().visibility == 'public' || existing().authorId == request.auth.uid);
+      allow create: if isVerifiedUser()
+        && isValidId(jobId)
+        && isValidIndustrialJobDoc(incoming())
+        && incoming().id == jobId
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && authorProfileExists();
+      allow update: if isVerifiedUser()
+        && isValidId(jobId)
+        && isValidIndustrialJobDoc(incoming())
+        && existing().authorId == request.auth.uid
+        && incoming().id == existing().id
+        && incoming().authorId == existing().authorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && existing().status != 'closed'
+        && (
+          // Action: Close Job
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          ||
+          // Action: Update Job Details
+          incoming().diff(existing()).affectedKeys().hasOnly(['titleAr', 'companyName', 'city', 'salaryRange', 'visibility', 'updatedAt'])
+        );
+      allow delete: if isVerifiedUser()
+        && isValidId(jobId)
+        && existing().authorId == request.auth.uid;
+    }
+
+    // 6. Marketplace Listings
+    match /marketListings/{listingId} {
+      allow get: if isSignedIn() && isValidId(listingId) && (existing().visibility == 'public' || existing().authorId == request.auth.uid);
+      allow list: if isSignedIn() && (existing().visibility == 'public' || existing().authorId == request.auth.uid);
+      allow create: if isVerifiedUser()
+        && isValidId(listingId)
+        && isValidMarketListingDoc(incoming())
+        && incoming().id == listingId
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && authorProfileExists();
+      allow update: if isVerifiedUser()
+        && isValidId(listingId)
+        && isValidMarketListingDoc(incoming())
+        && existing().authorId == request.auth.uid
+        && incoming().id == existing().id
+        && incoming().authorId == existing().authorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && existing().status != 'archived'
+        && (
+          // Action: Mark Listing Sold or Archived
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          ||
+          // Action: Update Listing Price or Condition
+          incoming().diff(existing()).affectedKeys().hasOnly(['titleAr', 'conditionAr', 'price', 'city', 'visibility', 'updatedAt'])
+        );
+      allow delete: if isVerifiedUser()
+        && isValidId(listingId)
+        && existing().authorId == request.auth.uid;
+    }
+  }
+}

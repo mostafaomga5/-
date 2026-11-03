@@ -1,6 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="16" fill="#07080D"/>
-  <path d="M16 48V20C16 15.5817 19.5817 12 24 12H36C42.0751 12 47 16.9249 47 23C47 29.0751 42.0751 34 36 34H25V48H16Z" fill="#2563EB"/>
-  <circle cx="35.5" cy="23" r="4.5" fill="#07080D"/>
-  <path d="M31 39H43L49 48H35L31 39Z" fill="#F97316"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <rect width="120" height="120" rx="28" fill="#071A33"/>
+  <defs>
+    <linearGradient id="favBlue" x1="16" y1="14" x2="88" y2="104" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#27BED6"/>
+      <stop offset="50%" stop-color="#1769E8"/>
+      <stop offset="100%" stop-color="#0D47A1"/>
+    </linearGradient>
+    <linearGradient id="favOrange" x1="52" y1="16" x2="108" y2="86" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFAB4A"/>
+      <stop offset="65%" stop-color="#FF8A2A"/>
+      <stop offset="100%" stop-color="#E66400"/>
+    </linearGradient>
+  </defs>
+  <path d="M54 18H73C90.6731 18 105 32.3269 105 50C105 67.6731 90.6731 82 73 82H56V65H72C80.2843 65 87 58.2843 87 50C87 41.7157 80.2843 35 72 35H54V18Z" fill="url(#favOrange)"/>
+  <path d="M22 30C22 23.3726 27.3726 18 34 18H63C79.0163 18 92 30.9837 92 47C92 63.0163 79.0163 76 63 76H42V102H22V30ZM42 35V59H61C67.6274 59 73 53.6274 73 47C73 40.3726 67.6274 35 61 35H42Z" fill="url(#favBlue)"/>
+  <path d="M32 45L51 35L65 47" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="45" r="5.5" fill="#27BED6"/>
+  <circle cx="51" cy="35" r="5" fill="#FFFFFF"/>
+  <circle cx="65" cy="47" r="6" fill="#FF8A2A" stroke="#071A33" stroke-width="2"/>
 </svg>

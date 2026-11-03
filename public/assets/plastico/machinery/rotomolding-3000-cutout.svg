@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" fill="none">
+  <defs>
+    <linearGradient id="rmNavy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#12346B"/>
+      <stop offset="100%" stop-color="#071A33"/>
+    </linearGradient>
+    <linearGradient id="rmSteel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <filter id="rmShadow" x="-8%" y="-8%" width="116%" height="120%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#071A33" flood-opacity="0.38"/>
+    </filter>
+  </defs>
+  <g filter="url(#rmShadow)">
+    <!-- Main Oven Chamber -->
+    <rect x="128" y="48" width="400" height="310" rx="12" fill="url(#rmNavy)" stroke="#FF8A2A" stroke-width="2"/>
+    <rect x="156" y="76" width="320" height="252" rx="8" fill="#1E293B" stroke="#94A3B8" stroke-width="3"/>
+    <!-- Left HMI Touch Panel -->
+    <rect x="34" y="148" width="96" height="114" rx="8" fill="url(#rmNavy)" stroke="#1769E8" stroke-width="2"/>
+    <rect x="44" y="158" width="76" height="68" rx="4" fill="#041022" stroke="#27BED6"/>
+    <text x="82" y="174" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="7" font-weight="bold">ROTOMOLDING 3000</text>
+    <text x="82" y="188" text-anchor="middle" fill="#27BED6" font-family="monospace" font-size="7">TEMP: 220°C</text>
+    <text x="82" y="200" text-anchor="middle" fill="#FF8A2A" font-family="monospace" font-size="6.5">BIAXIAL: 6 RPM</text>
+    <text x="82" y="212" text-anchor="middle" fill="#10B981" font-family="monospace" font-size="6.5">CYCLE: ROTATING</text>
+    <circle cx="54" cy="242" r="5" fill="#EF4444"/>
+    <circle cx="72" cy="242" r="5" fill="#1769E8"/>
+    <circle cx="90" cy="242" r="5" fill="#FF8A2A"/>
+    <circle cx="108" cy="242" r="6" fill="#FACC15"/>
+    <!-- Biaxial Rotating Drum with Orange Polymer Granules Inside -->
+    <ellipse cx="316" cy="202" rx="92" ry="76" fill="url(#rmSteel)" stroke="#475569" stroke-width="3"/>
+    <ellipse cx="352" cy="202" rx="54" ry="62" fill="#0F172A" stroke="#CBD5E1" stroke-width="4"/>
+    <path d="M312 222 Q352 195 396 226 Q384 258 352 260 Q320 258 312 222 Z" fill="#FF8A2A"/>
+    <!-- Biaxial Arms -->
+    <rect x="174" y="246" width="110" height="24" rx="6" fill="#1769E8" stroke="#FF8A2A" stroke-width="2"/>
+    <rect x="318" y="246" width="110" height="24" rx="6" fill="#1769E8" stroke="#FF8A2A" stroke-width="2"/>
+    <!-- Lower Drive Base & Orange Motor -->
+    <rect x="138" y="358" width="380" height="82" rx="8" fill="url(#rmNavy)" stroke="#1769E8" stroke-width="1.5"/>
+    <rect x="380" y="372" width="96" height="44" rx="10" fill="#FF8A2A" stroke="#EA580C" stroke-width="2"/>
+    <rect x="210" y="414" width="236" height="18" rx="4" fill="#041022"/>
+    <text x="328" y="426" text-anchor="middle" fill="#CBD5E1" font-family="sans-serif" font-size="7.5" font-weight="bold">MODEL: RM-B200 • ROTATIONAL MOLDING MACHINE • 380V</text>
+  </g>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+    <defs>
+      <pattern id="grid_granules" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.035)" stroke-width="1"/>
+  </pattern>
+      <radialGradient id="glow_granules" cx="50%" cy="50%" r="60%">
+        <stop offset="0%" stop-color="#2563EB" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="#0B0F19" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="800" height="500" fill="#0B0F19"/>
+    <rect width="800" height="500" fill="url(#grid_granules)"/>
+    <rect width="800" height="500" fill="url(#glow_granules)"/>
+    <!-- Architectural Frame Lines -->
+    <rect x="28" y="28" width="744" height="444" rx="16" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+    <line x1="28" y1="72" x2="772" y2="72" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+    <circle cx="54" cy="50" r="5" fill="#2563EB"/>
+    <circle cx="74" cy="50" r="5" fill="#F97316"/>
+    <circle cx="94" cy="50" r="5" fill="#334155"/>
+    
+        <!-- Polymer Resin Silo & Masterbatch Granules -->
+        <polygon points="270,100 530,100 455,250 345,250" fill="#162033" stroke="#2563EB" stroke-width="2.5"/>
+        <circle cx="355" cy="305" r="14" fill="#2563EB"/>
+        <circle cx="395" cy="295" r="14" fill="#F97316"/>
+        <circle cx="435" cy="310" r="14" fill="#38BDF8"/>
+        <circle cx="330" cy="345" r="14" fill="#38BDF8"/>
+        <circle cx="375" cy="340" r="14" fill="#2563EB"/>
+        <circle cx="418" cy="348" r="14" fill="#2563EB"/>
+        <circle cx="462" cy="340" r="14" fill="#F97316"/>
+        <circle cx="310" cy="382" r="14" fill="#F97316"/>
+        <circle cx="352" cy="380" r="14" fill="#38BDF8"/>
+        <circle cx="398" cy="385" r="14" fill="#2563EB"/>
+        <circle cx="442" cy="380" r="14" fill="#38BDF8"/>
+        <circle cx="485" cy="384" r="14" fill="#2563EB"/>
+      
+  </svg>

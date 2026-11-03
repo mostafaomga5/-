@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 480" fill="none">
+  <defs>
+    <linearGradient id="sackWhite" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="65%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#CBD5E1"/>
+    </linearGradient>
+    <filter id="pelletShadow" x="-8%" y="-8%" width="116%" height="120%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#071A33" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <g filter="url(#pelletShadow)">
+    <!-- White 25KG Polymer Resin Woven Sack -->
+    <path d="M68 112 Q60 72 178 72 Q296 72 288 112 L310 386 Q312 406 284 406 H64 Q44 406 48 386 Z" fill="url(#sackWhite)" stroke="#94A3B8" stroke-width="2"/>
+    <!-- Blue Granules Inside Open Top of Sack -->
+    <ellipse cx="178" cy="114" rx="92" ry="32" fill="#1769E8"/>
+    <ellipse cx="178" cy="110" rx="76" ry="22" fill="#0B4BB8"/>
+    <!-- Label on Sack -->
+    <rect x="102" y="218" width="168" height="92" rx="6" fill="#071A33"/>
+    <text x="186" y="256" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="26" font-weight="900">POLYMER</text>
+    <text x="186" y="276" text-anchor="middle" fill="#27BED6" font-family="sans-serif" font-size="8.5" font-weight="bold">RAW MATERIAL • PLASTIC PELLETS</text>
+    <text x="186" y="294" text-anchor="middle" fill="#CBD5E1" font-family="monospace" font-size="8">GRADE: PP/PE • BATCH: RM-1024 • 25KG</text>
+    <!-- Glass Masterbatch & Polymer Jar on Right -->
+    <rect x="352" y="114" width="144" height="32" rx="8" fill="#071A33" stroke="#1769E8" stroke-width="2"/>
+    <rect x="332" y="146" width="184" height="258" rx="28" fill="#F8FAFC" fill-opacity="0.92" stroke="#CBD5E1" stroke-width="3"/>
+    <!-- Half Blue / Half Orange Granules Inside Jar -->
+    <path d="M342 184 H424 V392 H360 Q342 392 342 372 Z" fill="#1769E8"/>
+    <path d="M424 184 H506 V372 Q506 392 488 392 H424 Z" fill="#FF8A2A"/>
+    <!-- Spilled Blue Pellets in Foreground -->
+    <ellipse cx="224" cy="414" rx="116" ry="22" fill="#1769E8"/>
+    <circle cx="96" cy="422" r="6" fill="#1769E8"/>
+    <circle cx="118" cy="432" r="6" fill="#1769E8"/>
+    <circle cx="268" cy="434" r="6" fill="#1769E8"/>
+    <circle cx="358" cy="426" r="6" fill="#FF8A2A"/>
+  </g>
+</svg>

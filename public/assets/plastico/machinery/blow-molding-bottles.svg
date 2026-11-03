@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" fill="none">
+  <rect width="360" height="360" rx="24" fill="#F1F5F9"/>
+  <defs>
+    <linearGradient id="bottleBody" x1="110" y1="90" x2="250" y2="310" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="65%" stop-color="#F8FAFC"/>
+      <stop offset="100%" stop-color="#CBD5E1"/>
+    </linearGradient>
+  </defs>
+  <!-- Bottle Cap -->
+  <rect x="144" y="48" width="72" height="32" rx="6" fill="#E2E8F0" stroke="#94A3B8" stroke-width="2"/>
+  <line x1="154" y1="48" x2="154" y2="80" stroke="#CBD5E1" stroke-width="2"/>
+  <line x1="168" y1="48" x2="168" y2="80" stroke="#CBD5E1" stroke-width="2"/>
+  <line x1="182" y1="48" x2="182" y2="80" stroke="#CBD5E1" stroke-width="2"/>
+  <line x1="196" y1="48" x2="196" y2="80" stroke="#CBD5E1" stroke-width="2"/>
+  <!-- Neck Ring -->
+  <rect x="138" y="80" width="84" height="10" rx="4" fill="#CBD5E1"/>
+  <!-- Bottle Shoulder & Body -->
+  <path d="M144 90H216L248 134V292C248 305 237 315 224 315H136C123 315 112 305 112 292V134L144 90Z" fill="url(#bottleBody)" stroke="#CBD5E1" stroke-width="3"/>
+  <!-- Bottle Ribs -->
+  <line x1="116" y1="168" x2="244" y2="168" stroke="#E2E8F0" stroke-width="4"/>
+  <line x1="116" y1="245" x2="244" y2="245" stroke="#E2E8F0" stroke-width="4"/>
+</svg>

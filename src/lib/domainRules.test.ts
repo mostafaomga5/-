@@ -8,6 +8,8 @@ import {
   validateManufacturingStep,
   isVerifiedFactoryProvider,
   isVerifiedUserProfile,
+  STICKER_3D_CATALOG,
+  resolveStickerForAsset,
 } from './domainRules';
 import { ManufacturingRequest, FactoryServiceProvider } from '../types/plastico';
 
@@ -209,4 +211,238 @@ test('isVerifiedFactoryProvider and filterFactoryProviders handle verified statu
     true
   );
 });
+
+test('STICKER_3D_CATALOG and resolveStickerForAsset cover all industrial sections and assets', () => {
+  assert.equal(STICKER_3D_CATALOG.length, 20);
+  assert.equal(resolveStickerForAsset('/images/plastico/marketplace/injection-mold-steel.svg'), 'steel_mold');
+  assert.equal(resolveStickerForAsset('/images/plastico/manufacturing/blow-molding-bottles.svg'), 'blow_bottles');
+  assert.equal(resolveStickerForAsset('/images/plastico/marketplace/virgin-polymer-granules.svg'), 'resin_granules');
+  assert.equal(resolveStickerForAsset('/images/plastico/manufacturing/pipe-extrusion.svg'), 'extrusion_pipe');
+  assert.equal(resolveStickerForAsset('/images/plastico/marketplace/plastic-shredder-unit.svg'), 'recycling_shredder');
+  assert.equal(resolveStickerForAsset('/images/plastico/marketplace/spare-parts.svg'), 'servo_spares');
+  assert.equal(resolveStickerForAsset('/images/plastico/factories/virtual-exhibition-hall.svg'), 'expo');
+});
+
+test('authService password hashing and timing-safe verification work accurately', async () => {
+  const {
+    hashPassword,
+    verifyPassword,
+    generateSessionSecrets,
+    parseCookies,
+    resolveSmartAssistantIntent,
+  } = await import('./authService');
+
+  const { hash, salt } = hashPassword('StrongIndustrialPass#2026');
+  assert.ok(hash.length > 32);
+  assert.ok(salt.length >= 16);
+  assert.equal(verifyPassword('StrongIndustrialPass#2026', hash, salt), true);
+  assert.equal(verifyPassword('WrongPassword#2026', hash, salt), false);
+
+  const secrets = generateSessionSecrets();
+  assert.ok(secrets.rawToken.length >= 32);
+  assert.ok(secrets.tokenHash.length === 64);
+  assert.ok(secrets.csrfToken.length >= 24);
+
+  const cookies = parseCookies('plastico_sid=abc123token; theme=dark');
+  assert.equal(cookies.plastico_sid, 'abc123token');
+  assert.equal(cookies.theme, 'dark');
+
+  const heaterIntent = resolveSmartAssistantIntent('عايز سخانات صناعية');
+  assert.equal(heaterIntent.recommendation?.targetRoute, '/app/market?category=heaters');
+  assert.ok(heaterIntent.recommendation?.categoryTitleAr.includes('السخانات'));
+  assert.ok((heaterIntent.matchedItems?.length ?? 0) > 0);
+
+  const usedInjectionIntent = resolveSmartAssistantIntent('عايز ماكينة حقن مستعملة');
+  assert.equal(
+    usedInjectionIntent.recommendation?.targetRoute,
+    '/app/market?category=injection_machines&condition=used'
+  );
+  assert.ok((usedInjectionIntent.matchedItems?.length ?? 0) > 0);
+
+  const supplierIntent = resolveSmartAssistantIntent('عايز مورد خامة PP');
+  assert.equal(
+    supplierIntent.recommendation?.targetRoute,
+    '/app/suppliers?category=raw_materials&q=PP'
+  );
+  assert.ok((supplierIntent.matchedItems?.length ?? 0) > 0);
+
+  const factoryRfqIntent = resolveSmartAssistantIntent('عايز مصنع يصنع لي منتج');
+  assert.equal(
+    factoryRfqIntent.recommendation?.targetRoute,
+    '/app/manufacturing/requests/new'
+  );
+  assert.ok((factoryRfqIntent.matchedItems?.length ?? 0) > 0);
+});
+
+test('Role-specific fields and Supplier skills strictly exclude machine operation and include polymer/supply skills', async () => {
+  const {
+    ROLE_SKILLS_OPTIONS,
+    SUPPLIER_ALLOWED_SKILLS,
+    FORBIDDEN_SUPPLIER_MACHINE_SKILLS,
+    sanitizeRoleSkills,
+  } = await import('../data/roleFieldsConfig');
+
+  assert.ok(Object.keys(ROLE_SKILLS_OPTIONS).length >= 5);
+  assert.equal(SUPPLIER_ALLOWED_SKILLS.length, 15);
+
+  // Verify supplier skills strip forbidden machine operation skills
+  const mixedSkills = [
+    'تشغيل ماكينات الحقن',
+    'صيانة القوالب',
+    'أنظمة PLC',
+    'خامات PP',
+    'ماسترباتش ألوان',
+    'توفير عينات الخامات',
+  ];
+  const cleaned = sanitizeRoleSkills('supplier', mixedSkills);
+  assert.deepEqual(cleaned, ['خامات PP', 'ماسترباتش ألوان', 'توفير عينات الخامات']);
+
+  for (const forbidden of FORBIDDEN_SUPPLIER_MACHINE_SKILLS) {
+    assert.ok(!SUPPLIER_ALLOWED_SKILLS.includes(forbidden));
+  }
+});
+
+test('IMAGE_MANIFEST and visualAssetMap map all 46 valid industrial assets and exclude UI reference mockups', async () => {
+  const { IMAGE_MANIFEST } = await import('../data/imageManifest');
+  const { INDUSTRIAL_3D_ICONS, REGISTRATION_ROLE_CARDS } = await import('../data/visualAssetMap');
+
+  // Verify 12 3D category icons are present and point to /assets/aistudio/Meta_AI_icon_*
+  const iconValues = Object.values(INDUSTRIAL_3D_ICONS);
+  assert.equal(iconValues.length, 12);
+  for (const iconPath of iconValues) {
+    assert.ok(iconPath.startsWith('/assets/aistudio/Meta_AI_icon_'), `Expected 3D icon path, got ${iconPath}`);
+  }
+
+  // Verify no asset in IMAGE_MANIFEST uses the excluded UI mockup files
+  const allManifestPaths = Object.entries(IMAGE_MANIFEST)
+    .filter(([key]) => key !== 'brand')
+    .flatMap(([, section]) => Object.values(section as Record<string, string>));
+
+  for (const p of allManifestPaths) {
+    assert.ok(p.startsWith('/assets/aistudio/'), `Expected /assets/aistudio/ path, got ${p}`);
+    assert.ok(!p.includes('file_00000000'), `Excluded UI mockup found in manifest: ${p}`);
+    assert.ok(!p.includes('a_clean_modern_high_resolution_ui_ux_mockup'), `Excluded UI collage found in manifest: ${p}`);
+  }
+
+  assert.equal(REGISTRATION_ROLE_CARDS.length, 8);
+  for (const rc of REGISTRATION_ROLE_CARDS) {
+    assert.ok(rc.image.startsWith('/assets/aistudio/'));
+    assert.ok(rc.icon3d.startsWith('/assets/aistudio/Meta_AI_icon_'));
+  }
+});
+
+test('Visitor mode and visitor accountType are strictly blocked from write/interactive actions', async () => {
+  const { canAccountPerformWriteAction } = await import('./domainRules');
+  assert.equal(canAccountPerformWriteAction(null, false), false);
+  assert.equal(canAccountPerformWriteAction('visitor', false), false);
+  assert.equal(canAccountPerformWriteAction('visitor', true), false);
+  assert.equal(canAccountPerformWriteAction('engineer', true), true);
+  assert.equal(canAccountPerformWriteAction('factory', true), true);
+  assert.equal(canAccountPerformWriteAction('supplier', true), true);
+});
+
+test('10-currency system, country-to-currency mapping, and price conversion work accurately', async () => {
+  const {
+    SUPPORTED_CURRENCIES,
+    CURRENCY_RATE_REFERENCE_DATE,
+    getDefaultCurrencyForCountry,
+    convertPriceCurrency,
+  } = await import('./domainRules');
+
+  assert.equal(SUPPORTED_CURRENCIES.length, 10);
+  assert.equal(CURRENCY_RATE_REFERENCE_DATE, '2026-11-02');
+  assert.equal(getDefaultCurrencyForCountry('مصر'), 'EGP');
+  assert.equal(getDefaultCurrencyForCountry('السعودية'), 'SAR');
+  assert.equal(getDefaultCurrencyForCountry('الإمارات'), 'AED');
+  assert.equal(getDefaultCurrencyForCountry('الكويت'), 'KWD');
+  assert.equal(getDefaultCurrencyForCountry('USA'), 'USD');
+
+  const convertedSar = convertPriceCurrency(1000, 'USD', 'SAR');
+  assert.equal(convertedSar.convertedAmount, 3750);
+  assert.equal(convertedSar.referenceDate, '2026-11-02');
+  assert.ok(convertedSar.formattedAr.includes('ر.س'));
+
+  const convertedEgp = convertPriceCurrency(100, 'USD', 'EGP');
+  assert.equal(convertedEgp.convertedAmount, 4920);
+  assert.ok(convertedEgp.formattedAr.includes('ج.م'));
+});
+
+test('Verification statuses, job application statuses, and attachment validation follow master specs', async () => {
+  const {
+    getVerificationStatusMeta,
+    JOB_APPLICATION_STATUS_META,
+    validateIndustrialAttachment,
+  } = await import('./domainRules');
+
+  const verifiedMeta = getVerificationStatusMeta('verified');
+  assert.equal(verifiedMeta.code, 'verified');
+  assert.equal(verifiedMeta.labelAr, 'موثق رسمياً');
+
+  const pendingMeta = getVerificationStatusMeta('pending');
+  assert.equal(pendingMeta.code, 'pending');
+  assert.equal(pendingMeta.labelAr, 'طلب التوثيق قيد المراجعة');
+
+  assert.equal(Object.keys(JOB_APPLICATION_STATUS_META).length, 6);
+  assert.equal(JOB_APPLICATION_STATUS_META.received.labelAr, 'تم الاستلام');
+  assert.equal(JOB_APPLICATION_STATUS_META.accepted.labelAr, 'مقبول');
+
+  const validImg = validateIndustrialAttachment({
+    name: 'defect-photo.webp',
+    sizeBytes: 2 * 1024 * 1024,
+    category: 'image',
+  });
+  assert.equal(validImg.valid, true);
+
+  const oversizedImg = validateIndustrialAttachment({
+    name: 'huge-photo.png',
+    sizeBytes: 15 * 1024 * 1024,
+    category: 'image',
+  });
+  assert.equal(oversizedImg.valid, false);
+
+  const invalidExt = validateIndustrialAttachment({
+    name: 'script.exe',
+    sizeBytes: 1024,
+    category: 'document',
+  });
+  assert.equal(invalidExt.valid, false);
+});
+
+test('Smart Assistant conversational greetings, name extraction, and technician lookup work naturally', async () => {
+  const { resolveSmartAssistantIntent } = await import('./authService');
+
+  const greetingWithUser = resolveSmartAssistantIntent('عامل إيه؟', 0, {
+    userName: 'أحمد المنشاوي',
+    userRole: 'factory',
+    userCountry: 'مصر',
+  });
+  assert.ok(greetingWithUser.replyAr.includes('أحمد المنشاوي'));
+
+  const introWithoutUser = resolveSmartAssistantIntent('أهلاً، اسمي محمود', 0, {});
+  assert.equal(introWithoutUser.detectedUserName, 'محمود');
+  assert.ok(introWithoutUser.replyAr.includes('محمود'));
+
+  const techLookup = resolveSmartAssistantIntent('محتاج فني صيانة حقن في مصر', 1, {
+    userName: 'أحمد',
+    dbContext: {
+      users: [
+        {
+          id: 'usr-12',
+          name: 'م. طارق عبد السلام',
+          role: 'engineer',
+          specialty: 'مهندس صيانة وتشغيل خطوط حقن',
+          city: 'العاشر من رمضان',
+          country: 'مصر',
+          skills: ['حقن بلاستيك', 'صيانة القوالب'],
+          verified: true,
+        },
+      ],
+    },
+  });
+  assert.ok(techLookup.replyAr.includes('م. طارق عبد السلام'));
+  assert.ok(
+    techLookup.matchedItems?.some((r) => r.route === '/app/profile/usr-12')
+  );
+});
+
 

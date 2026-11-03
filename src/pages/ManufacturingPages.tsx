@@ -26,6 +26,10 @@ import {
 import { ManufacturingProcessId, ManufacturingRequestStatus } from '../types/plastico';
 import { IndustrialImage } from '../components/IndustrialImage';
 import { VerifiedFactoryBadge } from '../components/VerifiedFactoryBadge';
+import { Sticker3D } from '../components/Sticker3D';
+import { GoogleFormsIntegrationPanel } from '../components/GoogleFormsIntegrationPanel';
+import { resolveStickerForAsset } from '../lib/domainRules';
+import { IMAGE_MANIFEST } from '../data/imageManifest';
 
 /* Shared Sub-navigation Bar for Manufacturing Section */
 const ManufacturingSubNav: React.FC<{ activeTab: string }> = ({ activeTab }) => {
@@ -61,12 +65,15 @@ const ManufacturingSubNav: React.FC<{ activeTab: string }> = ({ activeTab }) => 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B2A5B]">
-          {t('طلبات التصنيع (RFQ)', 'Manufacturing Requests (RFQ)')}
-        </h1>
+        <div className="flex items-center gap-2.5">
+          <Sticker3D id="rfq" size="sm" />
+          <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B2A5B]">
+            {t('طلبات التصنيع (RFQ)', 'Manufacturing Requests (RFQ)')}
+          </h1>
+        </div>
         <Link
           to="/app/manufacturing/requests/new"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0B5ED7] hover:bg-[#094bb0] text-white text-xs font-extrabold shadow-xs"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full btn-3d-blue text-xs font-extrabold"
         >
           <Plus className="w-4 h-4" />
           <span>{t('طلب تصنيع جديد', 'New RFQ')}</span>
@@ -158,7 +165,7 @@ export const ManufacturingRequestsListPage: React.FC = () => {
       quantityText: '50,000 قطعة',
       material: 'PP',
       descAr: 'عبوة 500 مل',
-      image: '/images/plastico/manufacturing/blow-molding-bottles.svg',
+      image: IMAGE_MANIFEST.marketplace.petBottlesCapsSet,
       offersCount: requests[0]?.offers.length || 2,
     },
     {
@@ -168,17 +175,17 @@ export const ManufacturingRequestsListPage: React.FC = () => {
       quantityText: '100,000 قطعة',
       material: 'HDPE',
       descAr: 'أغطية عبوات محكمة الغلق فوهة 28 مم',
-      image: '/images/plastico/manufacturing/injection-molding-service.svg',
+      image: IMAGE_MANIFEST.marketplace.newInjectionMachine,
       offersCount: requests[1]?.offers.length || 1,
     },
     ...filteredRequests.slice(2).map((r) => ({
       id: r.id,
       titleAr: r.titleAr,
       titleEn: r.titleEn,
-      quantityText: `${r.quantity.toLocaleString()} ${r.unit}`,
+      quantityText: `${r.quantity.toLocaleString()} ${r.unit || 'قطعة'}`,
       material: r.material,
       descAr: r.dimensions,
-      image: r.attachments[0] || '/images/plastico/manufacturing/blow-molding-bottles.svg',
+      image: r.attachments?.[0] || r.image || IMAGE_MANIFEST.marketplace.petBottlesCapsSet,
       offersCount: r.offers.length,
     })),
   ];
@@ -216,12 +223,12 @@ export const ManufacturingRequestsListPage: React.FC = () => {
         ))}
       </div>
 
-      {/* RFQ Cards List matching Image 6 Screen 11 */}
+      {/* RFQ Cards List with 3D Models & Transparent Stickers */}
       <div className="space-y-4">
         {signatureRfqs.map((rfq) => (
           <div
             key={rfq.id}
-            className="bg-white rounded-3xl border border-slate-200/85 p-4 sm:p-5 shadow-2xs space-y-4"
+            className="card-3d p-4 sm:p-5 space-y-4"
           >
             <div className="flex items-center justify-between gap-4">
               {/* Right side in RTL: Title & Specifications */}
@@ -245,23 +252,23 @@ export const ManufacturingRequestsListPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Left side in RTL: Product Image Thumbnail matching Image 6 Screen 11 */}
+              {/* Left side in RTL: 3D Product Image Thumbnail */}
               <Link
                 to={`/app/manufacturing/requests/${rfq.id}`}
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0"
+                className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border border-slate-200 shrink-0 shadow-sm"
               >
-                <img
+                <IndustrialImage
                   src={rfq.image}
                   alt={rfq.titleAr}
-                  className="w-full h-full object-cover"
+                  aspectClass="w-full h-full"
                 />
               </Link>
             </div>
 
-            {/* Full-width Dark Navy CTA Button: تقديم عرض سعر */}
+            {/* Full-width 3D Dark Navy CTA Button: تقديم عرض سعر */}
             <Link
               to={`/app/manufacturing/requests/${rfq.id}`}
-              className="block w-full py-3.5 rounded-full bg-[#0B2A5B] hover:bg-[#133B7A] text-white text-center text-xs sm:text-sm font-extrabold shadow-xs transition-all"
+              className="block w-full py-3.5 rounded-full btn-3d-primary text-center text-xs sm:text-sm font-extrabold transition-all"
             >
               {t('تقديم عرض سعر', 'Submit Price Quote')} ({rfq.offersCount}{' '}
               {t('عروض مقدمة', 'quotes')})
@@ -269,6 +276,9 @@ export const ManufacturingRequestsListPage: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Google Forms RFQ & Quality Inspection Integration */}
+      <GoogleFormsIntegrationPanel />
     </div>
   );
 };
@@ -286,15 +296,15 @@ export const NewManufacturingRequestPage: React.FC = () => {
 
   const [processId, setProcessId] = useState<ManufacturingProcessId>('injection');
   const [titleAr, setTitleAr] = useState('');
-  const [descriptionAr, setDescriptionAr] = useState('');
+  const [descriptionAr] = useState('');
   const [material, setMaterial] = useState('PP');
   const [unitWeightGrams, setUnitWeightGrams] = useState(25);
   const [dimensions, setDimensions] = useState('عبوة 500 مل · فوهة 28 مم');
-  const [color, setColor] = useState('أبيض');
+  const [color] = useState('أبيض');
   const [quantity, setQuantity] = useState(50000);
   const [unit, setUnit] = useState('قطعة');
   const [moldStatus, setMoldStatus] = useState<'متوفرة وجاهزة' | 'مطلوب تصنيع اسطمبة جديدة' | 'تحتاج صيانة/تعديل'>('متوفرة وجاهزة');
-  const [deliveryDate, setDeliveryDate] = useState('2026-12-25');
+  const [deliveryDate] = useState('2026-12-25');
   const [city, setCity] = useState('العاشر من رمضان');
   const [contactName, setContactName] = useState('أحمد محمد علي');
   const [contactPhone, setContactPhone] = useState('+20 100 812 4400');
@@ -352,22 +362,25 @@ export const NewManufacturingRequestPage: React.FC = () => {
       descriptionEn: descriptionAr || titleAr,
       contactName,
       contactPhone,
-      attachments: ['/images/plastico/manufacturing/blow-molding-bottles.svg'],
+      attachments: [IMAGE_MANIFEST.marketplace.petBottlesCapsSet],
     });
 
     navigate(`/app/manufacturing/requests/${newId}`);
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-5">
+    <div className="card-3d p-5 sm:p-6 space-y-5">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-extrabold text-[#0B2A5B]">
-            {t('نشر طلب تصنيع جديد (RFQ)', 'Post New Manufacturing Request (RFQ)')}
-          </h1>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">
-            {t('خطوة', 'Step')} {step} {t('من 4', 'of 4')}
-          </p>
+        <div className="flex items-center gap-3">
+          <Sticker3D id="rfq" size="md" />
+          <div>
+            <h1 className="text-xl font-extrabold text-[#0B2A5B]">
+              {t('نشر طلب تصنيع جديد (نموذج 3D تفاعلي)', 'Post New 3D Manufacturing Request (RFQ)')}
+            </h1>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              {t('خطوة', 'Step')} {step} {t('من 4', 'of 4')}
+            </p>
+          </div>
         </div>
         <Link to="/app/manufacturing" className="text-xs font-extrabold text-[#1D6BF3]">
           {t('إلغاء', 'Cancel')}
@@ -375,9 +388,9 @@ export const NewManufacturingRequestPage: React.FC = () => {
       </div>
 
       {/* Progress bar */}
-      <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+      <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden shadow-inner">
         <div
-          className="h-full bg-[#1D6BF3] transition-all duration-300"
+          className="h-full bg-gradient-to-r from-[#0B5ED7] to-[#38BDF8] transition-all duration-300"
           style={{ width: `${(step / 4) * 100}%` }}
         />
       </div>
@@ -392,20 +405,21 @@ export const NewManufacturingRequestPage: React.FC = () => {
         {step === 1 && (
           <div className="space-y-4">
             <label className="block text-xs font-extrabold text-[#0B2A5B]">
-              {t('اختر عملية التصنيع المطلوبة:', 'Select Manufacturing Process:')}
+              {t('اختر عملية التصنيع المطلوبة (نماذج 3D شفافة):', 'Select 3D Manufacturing Process:')}
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {MANUFACTURING_PROCESS_CATEGORIES.map((proc) => (
                 <button
                   key={proc.id}
                   type="button"
                   onClick={() => setProcessId(proc.id)}
-                  className={`p-3 rounded-2xl border text-start transition-all ${
+                  className={`card-3d p-3.5 text-start transition-all flex items-center gap-3 cursor-pointer ${
                     processId === proc.id
-                      ? 'bg-[#E8F2FF] border-[#1D6BF3] text-[#0B2A5B]'
-                      : 'bg-slate-50 border-slate-200 text-[#0B2A5B]'
+                      ? 'bg-[#E8F2FF] border-2 border-[#1D6BF3] text-[#0B2A5B]'
+                      : 'bg-white border border-slate-200 text-[#0B2A5B]'
                   }`}
                 >
+                  <Sticker3D id={resolveStickerForAsset(proc.id)} size="sm" />
                   <div className="text-xs font-extrabold">{t(proc.nameAr, proc.nameEn)}</div>
                 </button>
               ))}
@@ -424,7 +438,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
                 value={titleAr}
                 onChange={(e) => setTitleAr(e.target.value)}
                 placeholder={t('مثال: إنتاج عبوات بلاستيك 500 مل', 'e.g. 500ml Plastic Bottles')}
-                className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-[#0B2A5B]"
+                className="w-full px-4 py-3 rounded-2xl text-sm text-[#0B2A5B] input-3d"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -435,7 +449,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
                 <select
                   value={material}
                   onChange={(e) => setMaterial(e.target.value)}
-                  className="w-full px-3.5 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-[#0B2A5B]"
+                  className="w-full px-3.5 py-3 rounded-2xl text-sm font-bold text-[#0B2A5B] input-3d"
                 >
                   {['PP', 'HDPE', 'LDPE', 'PET', 'ABS', 'PVC'].map((m) => (
                     <option key={m} value={m}>
@@ -452,7 +466,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
                   type="number"
                   value={unitWeightGrams}
                   onChange={(e) => setUnitWeightGrams(Number(e.target.value))}
-                  className="w-full px-3.5 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-[#0B2A5B]"
+                  className="w-full px-3.5 py-3 rounded-2xl text-sm font-bold text-[#0B2A5B] input-3d"
                 />
               </div>
             </div>
@@ -464,7 +478,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
                 type="text"
                 value={dimensions}
                 onChange={(e) => setDimensions(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-[#0B2A5B]"
+                className="w-full px-4 py-3 rounded-2xl text-sm text-[#0B2A5B] input-3d"
               />
             </div>
           </div>
@@ -481,7 +495,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
                   type="number"
                   value={quantity}
                   onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-[#0B2A5B]"
+                  className="w-full px-4 py-3 rounded-2xl text-sm font-bold text-[#0B2A5B] input-3d"
                 />
               </div>
               <div>
@@ -491,7 +505,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
                 <select
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-[#0B2A5B]"
+                  className="w-full px-4 py-3 rounded-2xl text-sm font-bold text-[#0B2A5B] input-3d"
                 >
                   <option value="قطعة">قطعة</option>
                   <option value="طن">طن</option>
@@ -513,7 +527,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
                       | 'تحتاج صيانة/تعديل'
                   )
                 }
-                className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-[#0B2A5B]"
+                className="w-full px-4 py-3 rounded-2xl text-sm font-bold text-[#0B2A5B] input-3d"
               >
                 <option value="متوفرة وجاهزة">متوفرة وجاهزة للتشغيل</option>
                 <option value="مطلوب تصنيع اسطمبة جديدة">مطلوب تصنيع اسطمبة جديدة</option>
@@ -533,7 +547,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
                 type="text"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-[#0B2A5B]"
+                className="w-full px-4 py-3 rounded-2xl text-sm text-[#0B2A5B] input-3d"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -545,7 +559,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
                   type="text"
                   value={contactName}
                   onChange={(e) => setContactName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-[#0B2A5B]"
+                  className="w-full px-4 py-3 rounded-2xl text-sm text-[#0B2A5B] input-3d"
                 />
               </div>
               <div>
@@ -557,7 +571,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
                   dir="ltr"
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-[#0B2A5B]"
+                  className="w-full px-4 py-3 rounded-2xl text-sm text-[#0B2A5B] input-3d"
                 />
               </div>
             </div>
@@ -581,7 +595,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
             <button
               type="button"
               onClick={handleNext}
-              className="px-8 py-3.5 rounded-full bg-[#0B2A5B] text-white text-xs sm:text-sm font-extrabold flex items-center gap-2"
+              className="px-8 py-3.5 rounded-full btn-3d-primary text-xs sm:text-sm font-extrabold flex items-center gap-2"
             >
               <span>{t('متابعة', 'Next')}</span>
               <ArrowIcon className="w-4 h-4" />
@@ -589,7 +603,7 @@ export const NewManufacturingRequestPage: React.FC = () => {
           ) : (
             <button
               type="submit"
-              className="px-8 py-3.5 rounded-full bg-[#0B5ED7] text-white text-xs sm:text-sm font-extrabold"
+              className="px-8 py-3.5 rounded-full btn-3d-blue text-xs sm:text-sm font-extrabold"
             >
               {t('نشر طلب التصنيع الآن', 'Publish RFQ Now')}
             </button>
@@ -668,8 +682,9 @@ export const ManufacturingRequestDetailPage: React.FC = () => {
           </div>
           <img
             src={
-              request.attachments[0] ||
-              '/images/plastico/manufacturing/blow-molding-bottles.svg'
+              request.attachments?.[0] ||
+              request.image ||
+              IMAGE_MANIFEST.marketplace.petBottlesCapsSet
             }
             alt={request.titleAr}
             className="w-28 h-28 rounded-2xl object-cover border border-slate-200 shrink-0"
@@ -1168,7 +1183,7 @@ export const MoldsServicePage: React.FC = () => {
       <div className="bg-white rounded-3xl border border-slate-200 p-5 shadow-2xs space-y-4">
         <div className="flex items-center gap-4">
           <img
-            src="/images/plastico/marketplace/injection-mold-steel.svg"
+            src={IMAGE_MANIFEST.marketplace.industrialMold}
             alt="Molds"
             className="w-24 h-24 rounded-2xl object-cover border border-slate-200"
           />

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" fill="none">
+  <defs>
+    <linearGradient id="navyBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0E2D5C"/>
+      <stop offset="55%" stop-color="#071A33"/>
+      <stop offset="100%" stop-color="#051124"/>
+    </linearGradient>
+    <linearGradient id="blueAccent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1769E8"/>
+      <stop offset="100%" stop-color="#27BED6"/>
+    </linearGradient>
+    <linearGradient id="steelBar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="45%" stop-color="#CBD5E1"/>
+      <stop offset="100%" stop-color="#64748B"/>
+    </linearGradient>
+    <filter id="dropShadow" x="-8%" y="-8%" width="116%" height="120%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#071A33" flood-opacity="0.38"/>
+    </filter>
+  </defs>
+  <g filter="url(#dropShadow)">
+    <!-- Base Frame -->
+    <rect x="64" y="305" width="496" height="118" rx="10" fill="url(#navyBody)" stroke="#1E3A5F" stroke-width="2"/>
+    <rect x="64" y="294" width="496" height="16" rx="5" fill="#13386E"/>
+    <rect x="74" y="300" width="476" height="4" rx="2" fill="url(#blueAccent)"/>
+    <!-- Legs -->
+    <rect x="86" y="418" width="44" height="30" rx="4" fill="#051124"/>
+    <rect x="494" y="418" width="44" height="30" rx="4" fill="#051124"/>
+    <!-- Ventilation Grille & Panel -->
+    <rect x="135" y="335" width="115" height="65" rx="6" fill="#051226" stroke="#1E3A5F"/>
+    <line x1="148" y1="350" x2="236" y2="350" stroke="#1E3A5F" stroke-width="3"/>
+    <line x1="148" y1="362" x2="236" y2="362" stroke="#1E3A5F" stroke-width="3"/>
+    <line x1="148" y1="374" x2="236" y2="374" stroke="#1E3A5F" stroke-width="3"/>
+    <line x1="148" y1="386" x2="236" y2="386" stroke="#1E3A5F" stroke-width="3"/>
+    <!-- Digital Control Readout Box -->
+    <rect x="392" y="322" width="84" height="62" rx="6" fill="#0B2244" stroke="#27BED6" stroke-width="1.5"/>
+    <rect x="400" y="330" width="68" height="24" rx="3" fill="#041022"/>
+    <text x="434" y="345" text-anchor="middle" fill="#27BED6" font-family="monospace" font-size="7.5" font-weight="bold">READY • 220°C</text>
+    <circle cx="410" cy="368" r="4" fill="#FF8A2A"/>
+    <circle cx="425" cy="368" r="4" fill="#1769E8"/>
+    <circle cx="440" cy="368" r="4" fill="#10B981"/>
+    <circle cx="455" cy="368" r="4" fill="#FF8A2A"/>
+    <!-- Injection Unit Housing (Left) -->
+    <rect x="52" y="182" width="188" height="114" rx="8" fill="url(#navyBody)" stroke="#1769E8" stroke-width="1.5"/>
+    <rect x="52" y="198" width="188" height="4" fill="url(#blueAccent)"/>
+    <rect x="92" y="232" width="108" height="22" rx="4" fill="#041022" stroke="#1E3A5F"/>
+    <text x="146" y="246" text-anchor="middle" fill="#F8FAFC" font-family="sans-serif" font-size="9" font-weight="bold">INJECTION UNIT • 450T</text>
+    <!-- Hopper & Granules -->
+    <path d="M84 56 H220 L184 146 H120 Z" fill="url(#navyBody)" stroke="#27BED6" stroke-width="1.5"/>
+    <path d="M110 112 H194 L182 144 H122 Z" fill="#FF8A2A" opacity="0.88"/>
+    <ellipse cx="152" cy="56" rx="68" ry="12" fill="#13386E" stroke="#27BED6" stroke-width="1.5"/>
+    <rect x="132" y="144" width="40" height="20" fill="#0B2244"/>
+    <!-- Screw Barrel & Orange Nozzle -->
+    <rect x="104" y="146" width="398" height="32" rx="6" fill="url(#navyBody)" stroke="#1E3A5F" stroke-width="1.5"/>
+    <line x1="112" y1="162" x2="494" y2="162" stroke="#27BED6" stroke-width="2.5"/>
+    <rect x="502" y="150" width="24" height="24" rx="3" fill="#FF8A2A"/>
+    <polygon points="526,155 554,162 526,169" fill="#FF8A2A"/>
+    <!-- Clamping Tie Bars & Platens (Right) -->
+    <rect x="240" y="204" width="145" height="14" fill="url(#steelBar)"/>
+    <rect x="240" y="264" width="145" height="14" fill="url(#steelBar)"/>
+    <rect x="240" y="192" width="28" height="102" rx="4" fill="url(#steelBar)"/>
+    <rect x="364" y="186" width="38" height="108" rx="5" fill="url(#navyBody)" stroke="#1769E8"/>
+    <!-- Hydraulic Cylinders -->
+    <rect x="402" y="196" width="118" height="22" rx="5" fill="#13386E" stroke="#27BED6" stroke-width="1"/>
+    <rect x="402" y="230" width="118" height="24" rx="5" fill="#13386E" stroke="#27BED6" stroke-width="1"/>
+    <rect x="402" y="264" width="118" height="22" rx="5" fill="#13386E" stroke="#27BED6" stroke-width="1"/>
+    <rect x="520" y="186" width="24" height="108" rx="4" fill="url(#navyBody)" stroke="#1E3A5F"/>
+  </g>
+</svg>

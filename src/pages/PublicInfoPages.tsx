@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Phone,
   Mail,
   Lock,
   Eye,
@@ -9,1116 +8,1618 @@ import {
   CheckCircle2,
   ArrowLeft,
   ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  X,
-  Camera,
-  Crown,
-  Wrench,
-  Settings,
-  Award,
-  Briefcase,
-  MapPin,
-  ShieldCheck,
   User,
+  Building2,
+  Wrench,
+  Truck,
+  Store,
+  Compass,
+  AlertCircle,
+  KeyRound,
+  ShieldCheck,
+  Globe,
+  Phone,
 } from 'lucide-react';
 import { usePlastico } from '../context/PlasticoContext';
 import { PlasticoLogo } from '../components/PlasticoLogo';
-import { UserRole } from '../types/plastico';
+import { AccountType } from '../types/plastico';
+import { REGISTRATION_ROLE_CARDS, RoleVisualCardConfig } from '../data/visualAssetMap';
+import { triggerAssistantWelcomeIntro } from '../components/SmartPlasticoAssistant';
+import {
+  ROLE_SKILLS_OPTIONS,
+  getRoleSectionTitles,
+  sanitizeRoleSkills,
+  serializeRoleExtendedMetadata,
+} from '../data/roleFieldsConfig';
+
+function localizeAuthError(rawError: string | undefined, lang: 'ar' | 'en'): string {
+  const err = (rawError || '').trim();
+  if (!err) {
+    return lang === 'ar'
+      ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى التحقق والمحاولة مرة أخرى.'
+      : 'Incorrect email or password. Please check your credentials and try again.';
+  }
+  const lower = err.toLowerCase();
+  if (
+    lower.includes('غير صحيح') ||
+    lower.includes('invalid') ||
+    lower.includes('incorrect') ||
+    lower.includes('بيانات الدخول')
+  ) {
+    return lang === 'ar'
+      ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى التأكد من البيانات المدخلة.'
+      : 'Incorrect email/phone or password. Please verify your credentials.';
+  }
+  if (
+    lower.includes('خادم') ||
+    lower.includes('اتصال') ||
+    lower.includes('network') ||
+    lower.includes('fetch') ||
+    lower.includes('server')
+  ) {
+    return lang === 'ar'
+      ? 'تعذر الاتصال بالخادم حالياً. يرجى التحقق من اتصالك بالإنترنت والمحاولة مجدداً.'
+      : 'Failed to connect to the server. Please check your connection and try again.';
+  }
+  if (lower.includes('انتهت') || lower.includes('جلس') || lower.includes('expired')) {
+    return lang === 'ar'
+      ? 'انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى للمتابعة.'
+      : 'Your session has expired. Please sign in again to continue.';
+  }
+  return err;
+}
 
 /* ============================================================================
-   Screen 02: Create Account & Login (/auth/register & /auth/login)
-   Matches Image 1 (right phone) & Image 6 (Screen 2)
+   REAL LOGIN PAGE (/auth/login)
+   Matches the reference Login Card & connects to POST /api/auth/login
    ============================================================================ */
-export const RegisterPage: React.FC = () => {
-  const { lang, t, showToast } = usePlastico();
+export const LoginPage: React.FC = () => {
+  const {
+    lang,
+    setLang,
+    t,
+    loginWithRealCredentials,
+    loginWithGoogleAccount,
+    enterVisitorMode,
+  } = usePlastico();
   const navigate = useNavigate();
-  const [authMethod, setAuthMethod] = useState<'phone' | 'email'>('phone');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
+  const [searchParams] = useSearchParams();
+  const redirectTarget = searchParams.get('redirect') || '/app/home';
+  const sessionExpiredParam = searchParams.get('expired') === '1';
+
+  const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(
+    sessionExpiredParam
+      ? localizeAuthError('انتهت الجلسة', lang)
+      : null
+  );
 
+  const errorAlertRef = useRef<HTMLDivElement | null>(null);
   const ArrowIcon = lang === 'ar' ? ArrowLeft : ArrowRight;
-  const BackChevron = lang === 'ar' ? ChevronRight : ChevronLeft;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const scrollErrorIntoView = () => {
+    window.requestAnimationFrame(() => {
+      if (errorAlertRef.current) {
+        errorAlertRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+        errorAlertRef.current.focus({ preventScroll: true });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (errorMsg) {
+      scrollErrorIntoView();
+    }
+  }, [errorMsg]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast(
-      'مرحباً بك في بلاستيكو! اختر دورك المهني لتخصيص تجربتك.',
-      'Welcome to PLASTICO! Select your professional role.'
-    );
-    navigate('/onboarding/type');
+    setErrorMsg(null);
+    setSubmitting(true);
+
+    try {
+      const result = await loginWithRealCredentials({
+        emailOrPhone,
+        password,
+        rememberMe,
+      });
+
+      setSubmitting(false);
+      if (!result.ok) {
+        const localized = localizeAuthError(result.error, lang);
+        setErrorMsg(localized);
+        scrollErrorIntoView();
+        return;
+      }
+      triggerAssistantWelcomeIntro();
+      navigate(redirectTarget);
+    } catch {
+      setSubmitting(false);
+      const localized = localizeAuthError('فشل الاتصال بالخادم', lang);
+      setErrorMsg(localized);
+      scrollErrorIntoView();
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setErrorMsg(null);
+    setSubmitting(true);
+    const result = await loginWithGoogleAccount('engineer');
+    setSubmitting(false);
+    if (!result.ok) {
+      const localized = localizeAuthError(
+        result.error || 'تعذر تسجيل الدخول عبر Google.',
+        lang
+      );
+      setErrorMsg(localized);
+      scrollErrorIntoView();
+      return;
+    }
+    triggerAssistantWelcomeIntro();
+    navigate(redirectTarget);
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-between relative overflow-hidden">
-      <div className="w-full max-w-md mx-auto px-5 pt-6 pb-10 relative z-10 flex-1 flex flex-col justify-between">
-        {/* Top Bar: Back + Skip */}
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-[#F4F7FC] flex flex-col justify-between">
+      {/* Top Bar */}
+      <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-6 flex items-center justify-between">
+        <Link to="/">
+          <PlasticoLogo variant="horizontal" theme="light" size="sm" />
+        </Link>
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => navigate('/app/home')}
-            className="text-xs sm:text-sm font-bold text-[#0B2A5B] hover:text-[#1D6BF3]"
+            onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#DFE7F1] text-xs font-extrabold text-[#13243B]"
           >
-            {t('تخطى', 'Skip')}
+            <Globe className="w-3.5 h-3.5 text-[#1769E8]" />
+            <span>{lang === 'ar' ? 'EN' : 'عربي'}</span>
           </button>
           <button
             type="button"
-            onClick={() => navigate('/')}
-            aria-label={t('رجوع', 'Back')}
-            className="p-2 rounded-full hover:bg-slate-200/60 text-[#0B2A5B]"
+            onClick={() => {
+              enterVisitorMode();
+              navigate('/app/home');
+            }}
+            className="px-3.5 py-1.5 rounded-lg bg-white border border-[#DFE7F1] text-xs font-bold text-[#13243B] hover:border-[#1769E8] cursor-pointer"
           >
-            <BackChevron className="w-5 h-5" />
+            {t('تصفح كزائر', 'Browse as Visitor')}
           </button>
         </div>
+      </header>
 
-        {/* Brand Header */}
-        <div className="text-center mt-2">
-          <PlasticoLogo variant="stacked" theme="light" size="lg" showTagline />
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2A5B] mt-5">
-            {t('مرحباً بك في بلاستيكو', 'Welcome to PLASTICO')}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1.5">
-            {t(
-              'أنشئ حسابك وابدأ رحلتك مع مجتمع أكبر',
-              'Create your account and start your journey with a bigger community'
-            )}
-          </p>
-        </div>
-
-        {/* Form matching Image 1 Screen 02 */}
-        <form onSubmit={handleSubmit} className="space-y-4 mt-5">
-          {/* Segmented Toggle: Phone vs Email */}
-          <div className="grid grid-cols-2 p-1.5 rounded-full bg-[#EEF2F8] border border-slate-200/80">
-            <button
-              type="button"
-              onClick={() => setAuthMethod('phone')}
-              className={`py-2.5 px-4 rounded-full text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 transition-all ${
-                authMethod === 'phone'
-                  ? 'bg-[#0B2A5B] text-white shadow-sm'
-                  : 'text-[#0B2A5B] hover:text-[#1D6BF3]'
-              }`}
-            >
-              <Phone className="w-4 h-4" />
-              <span>{t('الهاتف', 'Phone')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setAuthMethod('email')}
-              className={`py-2.5 px-4 rounded-full text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 transition-all ${
-                authMethod === 'email'
-                  ? 'bg-[#0B2A5B] text-white shadow-sm'
-                  : 'text-[#0B2A5B] hover:text-[#1D6BF3]'
-              }`}
-            >
-              <Mail className="w-4 h-4" />
-              <span>{t('البريد الإلكتروني', 'Email')}</span>
-            </button>
+      {/* Main Login Card */}
+      <div className="w-full max-w-md mx-auto px-4 py-8 flex-1 flex flex-col justify-center">
+        <div className="bg-white rounded-3xl border border-[#DFE7F1] shadow-xl p-6 sm:p-8 space-y-6">
+          <div className="flex flex-col items-center text-center">
+            <PlasticoLogo variant="horizontal" theme="light" size="md" />
+            <h1 className="text-2xl font-extrabold text-[#13243B] mt-5">
+              {t('مرحباً بك في بلاستيكو', 'Welcome to PLASTICO')}
+            </h1>
+            <p className="text-xs sm:text-sm text-[#718096] font-medium mt-1">
+              {t(
+                'سجل الدخول للوصول إلى عالم بلاستيكو وإدارة حسابك الصناعي',
+                'Sign in to access the PLASTICO ecosystem and manage your account'
+              )}
+            </p>
           </div>
 
-          {authMethod === 'phone' ? (
+          {errorMsg && (
             <div
-              dir="ltr"
-              className="flex items-center bg-white rounded-2xl border border-slate-200 px-3.5 py-3 shadow-2xs focus-within:border-[#1D6BF3]"
+              ref={errorAlertRef}
+              tabIndex={-1}
+              role="alert"
+              aria-live="assertive"
+              data-testid="login-error-alert"
+              className="scroll-mt-24 p-4 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-800 text-xs sm:text-sm font-extrabold flex items-start gap-2.5 shadow-md transition-all duration-200 focus:outline-none"
             >
-              <div className="flex items-center gap-1.5 pr-3 border-r border-slate-200 text-xs font-extrabold text-[#0B2A5B]">
-                <span className="inline-block w-5 h-3.5 rounded-xs bg-gradient-to-b from-red-600 via-white to-black border border-slate-300" />
-                <span>+20</span>
+              <AlertCircle className="w-5 h-5 shrink-0 text-rose-600 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <div className="font-black text-rose-900 mb-0.5">
+                  {t('تنبيه تسجيل الدخول', 'Sign-In Alert')}
+                </div>
+                <span className="leading-relaxed block break-words">{errorMsg}</span>
               </div>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder={t('رقم الهاتف', 'Phone number')}
-                className="flex-1 min-w-0 px-3 bg-transparent text-sm text-[#0B2A5B] placeholder-slate-400 text-right focus:outline-none"
-              />
-            </div>
-          ) : (
-            <div className="flex items-center bg-white rounded-2xl border border-slate-200 px-4 py-3 shadow-2xs focus-within:border-[#1D6BF3]">
-              <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t('البريد الإلكتروني المهني', 'Work email address')}
-                className="flex-1 px-3 bg-transparent text-sm text-[#0B2A5B] placeholder-slate-400 focus:outline-none"
-              />
             </div>
           )}
 
-          {/* Password Field */}
-          <div className="flex items-center bg-white rounded-2xl border border-slate-200 px-4 py-3 shadow-2xs focus-within:border-[#1D6BF3]">
+          <form onSubmit={handleLogin} className="space-y-4">
+            {/* Email or Phone */}
+            <div>
+              <label className="block text-xs font-bold text-[#13243B] mb-1.5">
+                {t('البريد الإلكتروني أو رقم الهاتف', 'Email or Phone Number')}
+              </label>
+              <div className="flex items-center input-3d rounded-xl px-3.5 py-3">
+                <Mail className="w-4 h-4 text-[#718096] shrink-0" />
+                <input
+                  type="text"
+                  required
+                  value={emailOrPhone}
+                  onChange={(e) => setEmailOrPhone(e.target.value)}
+                  placeholder={t(
+                    'البريد الإلكتروني أو رقم الهاتف',
+                    'Email address or phone number'
+                  )}
+                  className="flex-1 min-w-0 px-3 bg-transparent text-xs sm:text-sm text-[#13243B] placeholder-[#718096] focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Password with Show/Hide */}
+            <div>
+              <label className="block text-xs font-bold text-[#13243B] mb-1.5">
+                {t('كلمة المرور', 'Password')}
+              </label>
+              <div className="flex items-center input-3d rounded-xl px-3.5 py-3">
+                <Lock className="w-4 h-4 text-[#718096] shrink-0" />
+                <input
+                  type={showPass ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t('كلمة المرور', 'Password')}
+                  className="flex-1 min-w-0 px-3 bg-transparent text-xs sm:text-sm text-[#13243B] placeholder-[#718096] focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  aria-label={t('إظهار أو إخفاء كلمة المرور', 'Toggle password visibility')}
+                  className="text-[#718096] hover:text-[#13243B]"
+                >
+                  {showPass ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between text-xs">
+              <label className="inline-flex items-center gap-2 font-bold text-[#13243B] cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-[#DFE7F1] text-[#1769E8] focus:ring-[#1769E8]"
+                />
+                <span>{t('تذكرني', 'Remember me')}</span>
+              </label>
+
+              <Link
+                to="/auth/forgot-password"
+                className="font-extrabold text-[#1769E8] hover:underline"
+              >
+                {t('نسيت كلمة المرور؟', 'Forgot password?')}
+              </Link>
+            </div>
+
+            {/* Sign In Button */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full py-3.5 px-5 rounded-xl bg-[#1769E8] hover:bg-[#1258C7] disabled:opacity-50 text-white font-extrabold text-sm shadow-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <span>
+                {submitting
+                  ? t('جاري تسجيل الدخول...', 'Signing in...')
+                  : t('تسجيل الدخول', 'Sign In')}
+              </span>
+              <ArrowIcon className="w-4 h-4" />
+            </button>
+          </form>
+
+          {/* Google Sign-In */}
+          <div className="space-y-3 pt-1">
+            <div className="flex items-center gap-3">
+              <div className="h-px bg-[#DFE7F1] flex-1" />
+              <span className="text-xs font-bold text-[#718096]">
+                {t('أو سجل باستخدام', 'Or sign in with')}
+              </span>
+              <div className="h-px bg-[#DFE7F1] flex-1" />
+            </div>
+
             <button
               type="button"
-              onClick={() => setShowPass(!showPass)}
-              className="text-slate-400 hover:text-[#0B2A5B]"
+              onClick={handleGoogleLogin}
+              disabled={submitting}
+              className="w-full py-3 px-4 rounded-xl bg-[#F4F7FC] hover:bg-slate-200/70 border border-[#DFE7F1] text-[#13243B] text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2.5 transition-colors cursor-pointer"
             >
-              {showPass ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+              <span className="w-5 h-5 rounded-full bg-white border border-[#DFE7F1] flex items-center justify-center text-xs font-black text-[#EA4335]">
+                G
+              </span>
+              <span>{t('تسجيل الدخول عبر Google', 'Continue with Google')}</span>
             </button>
-            <input
-              type={showPass ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('كلمة المرور', 'Password')}
-              className="flex-1 px-3 bg-transparent text-sm text-[#0B2A5B] placeholder-slate-400 focus:outline-none"
-            />
-            <Lock className="w-4 h-4 text-[#0B2A5B] shrink-0" />
+
+            {/* Visitor Read-Only Mode Button */}
+            <button
+              type="button"
+              data-testid="enter-visitor-btn"
+              onClick={() => {
+                enterVisitorMode();
+                navigate(redirectTarget);
+              }}
+              className="w-full py-3 px-4 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <Eye className="w-4 h-4 text-[#FF8A2A] shrink-0" />
+              <span>
+                {t(
+                  'الدخول كزائر (تصفح فقط بدون نشر أو تعليق)',
+                  'Enter as Visitor (Read-Only Browsing Only)'
+                )}
+              </span>
+            </button>
           </div>
 
-          {/* 3 Reassurance Checkmarks Box matching Image 1 Screen 02 */}
-          <div className="rounded-2xl bg-[#EEF2F8] p-4 space-y-2 border border-slate-200/70">
-            {[
-              t('حسابك آمن ومشفر', 'Your account is secure & encrypted'),
-              t('لن نرسل رسائل مزعجة', 'We never send spam messages'),
-              t('يمكنك التحكم ببياناتك دائماً', 'You are always in control of your data'),
-            ].map((line) => (
-              <div key={line} className="flex items-center gap-2 text-xs font-bold text-[#0B2A5B]">
-                <CheckCircle2 className="w-4 h-4 text-[#1D6BF3] shrink-0" />
-                <span>{line}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Submit CTA */}
-          <button
-            type="submit"
-            className="w-full py-4 px-6 rounded-full bg-[#0B2A5B] hover:bg-[#133B7A] text-white font-extrabold text-base shadow-lg flex items-center justify-center gap-3 transition-all"
-          >
-            <span>{t('إنشاء حساب', 'Create Account')}</span>
-            <ArrowIcon className="w-5 h-5" />
-          </button>
-        </form>
-
-        {/* Social Login & Login Link */}
-        <div className="space-y-4 mt-5 text-center">
-          <div className="flex items-center gap-3">
-            <div className="h-px bg-slate-200 flex-1" />
-            <span className="text-xs font-bold text-slate-500">
-              {t('أو تابع باستخدام', 'Or continue with')}
-            </span>
-            <div className="h-px bg-slate-200 flex-1" />
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: 'f', color: 'text-[#1877F2]' },
-              { label: 'Apple', color: 'text-slate-900' },
-              { label: 'G', color: 'text-[#EA4335]' },
-            ].map((soc) => (
-              <button
-                key={soc.label}
-                type="button"
-                onClick={() => navigate('/onboarding/type')}
-                className="py-3 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 font-extrabold text-sm shadow-2xs flex items-center justify-center"
-              >
-                <span className={soc.color}>{soc.label}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="text-xs font-bold text-slate-600 pt-1">
-            {t('لديك حساب بالفعل؟', 'Already have an account?')}{' '}
-            <Link to="/auth/login" className="text-[#1D6BF3] font-extrabold hover:underline">
-              {t('تسجيل الدخول', 'Sign In')}
+          <div className="text-center text-xs font-bold text-[#718096] pt-2 border-t border-[#DFE7F1]">
+            {t('ليس لديك حساب؟', "Don't have an account?")}{' '}
+            <Link
+              to="/auth/register"
+              className="text-[#1769E8] font-extrabold hover:underline"
+            >
+              {t('إنشاء حساب جديد', 'Create a new account')}
             </Link>
           </div>
         </div>
       </div>
-
-      {/* Bottom Navy Wave Decoration matching Image 1 Screen 02 */}
-      <div className="bg-gradient-to-l from-[#071D42] via-[#0B2A5B] to-[#123E82] py-4 px-6 text-white flex items-center justify-between">
-        <span className="text-[10px] tracking-[0.2em] font-bold text-blue-200 uppercase">
-          SAME PEOPLE • GREATER IMPACT
-        </span>
-        <img src="/brand/plastico-symbol.svg" alt="" className="w-8 h-8 object-contain" />
-      </div>
-    </div>
-  );
-};
-
-export const LoginPage: React.FC = () => {
-  const { lang, t, showToast } = usePlastico();
-  const navigate = useNavigate();
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const ArrowIcon = lang === 'ar' ? ArrowLeft : ArrowRight;
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    showToast('تم تسجيل الدخول بنجاح!', 'Signed in successfully!');
-    navigate('/app/home');
-  };
-
-  return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-between">
-      <div className="w-full max-w-md mx-auto px-5 pt-8 pb-10 flex-1 flex flex-col justify-center">
-        <div className="text-center mb-6">
-          <PlasticoLogo variant="stacked" theme="light" size="lg" />
-          <h1 className="text-2xl font-extrabold text-[#0B2A5B] mt-4">
-            {t('مرحباً بك مجدداً', 'Welcome Back')}
-          </h1>
-          <p className="text-xs text-slate-500 font-semibold mt-1">
-            {t('سجل دخولك لمتابعة أعمالك في مجتمع بلاستيكو', 'Sign in to your PLASTICO account')}
-          </p>
-        </div>
-
-        {/* Toggle Tabs matching Image 6 Screen 2 */}
-        <div className="grid grid-cols-2 p-1.5 rounded-full bg-[#EEF2F8] border border-slate-200 mb-5">
-          <Link
-            to="/auth/register"
-            className="py-2.5 px-4 rounded-full text-xs font-extrabold text-center text-[#0B2A5B]"
-          >
-            {t('إنشاء حساب', 'Register')}
-          </Link>
-          <span className="py-2.5 px-4 rounded-full text-xs font-extrabold text-center bg-[#0B2A5B] text-white shadow-sm">
-            {t('تسجيل الدخول', 'Sign In')}
-          </span>
-        </div>
-
-        <form onSubmit={handleLogin} className="space-y-3.5">
-          <div className="flex items-center bg-white rounded-2xl border border-slate-200 px-4 py-3.5">
-            <Mail className="w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              placeholder={t('البريد الإلكتروني أو رقم الهاتف', 'Email or phone number')}
-              className="flex-1 px-3 bg-transparent text-sm text-[#0B2A5B] focus:outline-none"
-            />
-          </div>
-
-          <div className="flex items-center bg-white rounded-2xl border border-slate-200 px-4 py-3.5">
-            <Lock className="w-4 h-4 text-slate-400" />
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('كلمة المرور', 'Password')}
-              className="flex-1 px-3 bg-transparent text-sm text-[#0B2A5B] focus:outline-none"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-4 rounded-full bg-[#0B2A5B] hover:bg-[#133B7A] text-white font-extrabold text-sm shadow-lg flex items-center justify-center gap-2 mt-2"
-          >
-            <span>{t('تسجيل الدخول', 'Sign In')}</span>
-            <ArrowIcon className="w-4 h-4" />
-          </button>
-        </form>
-      </div>
     </div>
   );
 };
 
 /* ============================================================================
-   Screens 03 & 04: Role Selection (2/4) & Engineer vs Technician (3/4)
-   Matches Image 3 (both phones) & Image 6 (Screens 3 & 4)
+   REAL TWO-STEP REGISTRATION PAGE (/auth/register)
+   Step 1: Full name, Email, Password, Confirm password, Country, Account type
+   Step 2: Dynamic Role-Specific Profile Completion
    ============================================================================ */
-export const OnboardingRolePage: React.FC = () => {
-  const { lang, t, currentUser, switchPersona } = usePlastico();
+export const RegisterPage: React.FC = () => {
+  const {
+    lang,
+    setLang,
+    t,
+    registerRealAccount,
+    saveRealProfileUpdate,
+    enterVisitorMode,
+  } = usePlastico();
   const navigate = useNavigate();
-  const [step, setStep] = useState<2 | 3>(2);
-  const [selectedGroup, setSelectedGroup] = useState<
-    'tech_eng' | 'factory' | 'supplier' | 'trader' | 'interested'
-  >('tech_eng');
-  const [subRole, setSubRole] = useState<'engineer' | 'technician'>(
-    currentUser.role === 'technician' ? 'technician' : 'engineer'
-  );
-  const [specialty, setSpecialty] = useState('ميكانيكا');
+
+  const [step, setStep] = useState<1 | 2>(1);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [country, setCountry] = useState('مصر');
+  const [city, setCity] = useState('العاشر من رمضان');
+  const [selectedRoleCardId, setSelectedRoleCardId] =
+    useState<RoleVisualCardConfig['id']>('engineer');
+  const [accountType, setAccountType] = useState<AccountType>('engineer');
+  const [showPass, setShowPass] = useState(false);
+
+  // Common Step 2 Fields
+  const [specialty, setSpecialty] = useState('هندسة تشغيل وضبط جودة البوليمرات');
+  const [jobTitle, setJobTitle] = useState('مهندس إنتاج وجودة');
+  const [companyName, setCompanyName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [experienceYears, setExperienceYears] = useState(5);
+  const [bio, setBio] = useState('');
+  const [educationAndCerts, setEducationAndCerts] = useState('');
+  const [machinesAndSystems, setMachinesAndSystems] = useState('Haitian MA-2500، Engel Victory');
+  const [pastExperienceSummary, setPastExperienceSummary] = useState('');
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([
+    'هندسة تشغيل وضبط عمليات الحقن (Process Engineering)',
+    'توكيد ومراقبة الجودة (QA / QC & MFI Testing)',
+  ]);
+
+  // Factory-Specific Extended Fields
+  const [factoryActivityType, setFactoryActivityType] = useState('حقن ونفخ عبوات ومنتجات بلاستيكية');
+  const [machinesCount, setMachinesCount] = useState('12 ماكينة وخط إنتاج');
+  const [productionCapacity, setProductionCapacity] = useState('450 طن شهرياً');
+  const [productsManufactured, setProductsManufactured] = useState('عبوات دوائية، جراكن HDPE، وصناديق صناعية');
+
+  // Engineer-Specific Extended Fields
+  const [industrialSectors, setIndustrialSectors] = useState('الحقن، القوالب، والتغليف الدوائي');
+  const [softwareAndSystems, setSoftwareAndSystems] = useState('SolidWorks, Moldflow, AutoCAD, Siemens PLC');
+
+  // Supplier-Specific Extended Fields (Raw Materials & Masterbatch ONLY)
+  const [supplierProducts, setSupplierProducts] = useState('خامات PP حَقن وسحب، HDPE نفخ وفيلم، ماسترباتش ألوان وأبيض');
+  const [supplierBrands, setSupplierBrands] = useState('SABIC, Borouge, Tasnee, EPPC');
+  const [supplyScope, setSupplyScope] = useState('توريد محلي ودولي — كميات كبيرة وصغيرة مع توفير عينات وداتا شيت');
+  const [countriesServed, setCountriesServed] = useState('مصر، السعودية، الإمارات، الأردن');
+
+  // Trader-Specific Extended Fields (Machinery & Equipment)
+  const [equipmentTypes, setEquipmentTypes] = useState('ماكينات حقن، ماكينات نفخ، شيلرات، ومجففات');
+  const [conditionOffered, setConditionOffered] = useState('جديد ومستعمل مفحوص فنياً');
+  const [traderBrands, setTraderBrands] = useState('Haitian, Engel, Chen Hsong, KraussMaffei');
+  const [buySellServices, setBuySellServices] = useState('بيع وشراء واستبدال خطوط الإنتاج والماكينات');
+  const [sparePartsAndMaintenance, setSparePartsAndMaintenance] = useState('متوفر قطع غيار (فتيل، براميل، هيدروليك) وصيانة ما قبل التسليم');
+
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const registerErrorRef = useRef<HTMLDivElement | null>(null);
 
   const ArrowIcon = lang === 'ar' ? ArrowLeft : ArrowRight;
-  const BackChevron = lang === 'ar' ? ChevronLeft : ChevronRight;
 
-  const handleContinueFromStep2 = () => {
-    if (selectedGroup === 'tech_eng') {
-      setStep(3);
+  useEffect(() => {
+    if (errorMsg && registerErrorRef.current) {
+      registerErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [errorMsg]);
+
+  const handleSelectRoleCard = (card: RoleVisualCardConfig) => {
+    const newRole = card.dbRole as AccountType;
+    setSelectedRoleCardId(card.id);
+    setAccountType(newRole);
+    setSpecialty(card.defaultSpecialtyAr);
+    const defaultRoleSkills = ROLE_SKILLS_OPTIONS[newRole] || [];
+    setSelectedSkills(defaultRoleSkills.slice(0, 3));
+    if (newRole === 'supplier') {
+      setMachinesAndSystems('SABIC, Borouge, Tasnee');
+    } else if (newRole === 'engineer') {
+      setMachinesAndSystems('SolidWorks, Moldflow, Haitian CNC');
     } else {
-      const roleMap: Record<string, UserRole> = {
-        factory: 'factory',
-        supplier: 'supplier',
-        trader: 'trader',
-        interested: 'engineer',
-      };
-      switchPersona(roleMap[selectedGroup] || 'factory');
-      navigate('/onboarding/setup');
+      setMachinesAndSystems('Haitian MA-2500، Engel Victory');
     }
   };
 
-  const handleContinueFromStep3 = () => {
-    switchPersona(subRole);
-    navigate('/onboarding/setup');
+  const handleStep1Submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+
+    if (password !== confirmPassword) {
+      setErrorMsg(t('تأكيد كلمة المرور غير مطابق.', 'Passwords do not match.'));
+      return;
+    }
+    if (password.length < 6) {
+      setErrorMsg(
+        t(
+          'كلمة المرور يجب أن تتكون من 6 أحرف على الأقل.',
+          'Password must be at least 6 characters.'
+        )
+      );
+      return;
+    }
+
+    setSubmitting(true);
+    const result = await registerRealAccount({
+      fullName,
+      email,
+      password,
+      confirmPassword,
+      country,
+      city,
+      accountType,
+    });
+    setSubmitting(false);
+
+    if (!result.ok) {
+      setErrorMsg(localizeAuthError(result.error || 'تعذر إنشاء الحساب.', lang));
+      return;
+    }
+
+    triggerAssistantWelcomeIntro();
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleStep2Complete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    const cleanedSkills = sanitizeRoleSkills(accountType, selectedSkills);
+    const extendedMeta = serializeRoleExtendedMetadata({
+      factoryActivityType: accountType === 'factory' ? factoryActivityType : undefined,
+      machinesCount: accountType === 'factory' ? machinesCount : undefined,
+      productionCapacity: accountType === 'factory' ? productionCapacity : undefined,
+      productsManufactured: accountType === 'factory' ? productsManufactured : undefined,
+      desiredOrCurrentJob: accountType === 'technician' ? jobTitle : undefined,
+      industrialSectors: accountType === 'engineer' ? industrialSectors : undefined,
+      softwareAndSystems: accountType === 'engineer' ? softwareAndSystems : undefined,
+      supplierProducts: accountType === 'supplier' ? supplierProducts : undefined,
+      supplierBrands: accountType === 'supplier' ? supplierBrands : undefined,
+      supplyScope: accountType === 'supplier' ? supplyScope : undefined,
+      countriesServed: accountType === 'supplier' ? countriesServed : undefined,
+      equipmentTypes: accountType === 'trader' ? equipmentTypes : undefined,
+      conditionOffered: accountType === 'trader' ? conditionOffered : undefined,
+      traderBrands: accountType === 'trader' ? traderBrands : undefined,
+      buySellServices: accountType === 'trader' ? buySellServices : undefined,
+      sparePartsAndMaintenance: accountType === 'trader' ? sparePartsAndMaintenance : undefined,
+    });
+
+    const parsedMachines = (
+      accountType === 'supplier'
+        ? supplierBrands
+        : accountType === 'trader'
+        ? traderBrands
+        : accountType === 'engineer'
+        ? softwareAndSystems
+        : machinesAndSystems
+    )
+      .split(/[,،]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const parsedCerts = educationAndCerts
+      .split(/[,،]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    await saveRealProfileUpdate({
+      name: fullName,
+      accountType,
+      country,
+      city,
+      jobTitle: jobTitle || specialty,
+      specialty: accountType === 'factory' ? factoryActivityType : specialty,
+      companyName,
+      phone,
+      experienceYears,
+      bio,
+      education: educationAndCerts,
+      workPreferences: extendedMeta,
+      skills: cleanedSkills,
+      machines: parsedMachines,
+      certificates: parsedCerts,
+      experiences: pastExperienceSummary.trim()
+        ? [
+            {
+              title: jobTitle || specialty,
+              company: companyName || pastExperienceSummary.trim(),
+              years: `${experienceYears} سنوات`,
+            },
+          ]
+        : undefined,
+    });
+    setSubmitting(false);
+    triggerAssistantWelcomeIntro();
+    navigate('/app/home');
+  };
+
+  const toggleSkill = (sk: string) => {
+    setSelectedSkills((prev) =>
+      prev.includes(sk) ? prev.filter((x) => x !== sk) : [...prev, sk]
+    );
+  };
+
+  const roleLabels = getRoleSectionTitles(accountType);
+  const availableRoleSkills = ROLE_SKILLS_OPTIONS[accountType] || ROLE_SKILLS_OPTIONS.engineer;
+
   return (
-    <div className="min-h-screen bg-[#F4F7FB] flex flex-col justify-between py-6 px-4">
-      <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-between">
-        {/* Top Bar with Back, Logo, Skip, and Progress 2/4 or 3/4 */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => navigate('/app/home')}
-              className="text-xs sm:text-sm font-extrabold text-[#1D6BF3]"
-            >
-              {t('تخطي', 'Skip')}
-            </button>
-            <PlasticoLogo variant="horizontal" size="sm" />
-            <button
-              type="button"
-              onClick={() => (step === 3 ? setStep(2) : navigate('/auth/register'))}
-              className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-[#0B2A5B]"
-            >
-              <span>{t('رجوع', 'Back')}</span>
-              <BackChevron className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-extrabold text-[#0B2A5B] font-mono-num">
-              {step}/4
-            </span>
-            <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
-              <div
-                className={`h-full rounded-full bg-gradient-to-l from-[#1D6BF3] to-[#0B2A5B] transition-all duration-300 ${
-                  step === 2 ? 'w-2/4' : 'w-3/4'
-                }`}
-              />
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#F4F7FC] flex flex-col justify-between overflow-x-hidden">
+      {/* Top Bar */}
+      <header className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-5 flex items-center justify-between">
+        <Link to="/">
+          <PlasticoLogo variant="horizontal" theme="light" size="sm" />
+        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#DFE7F1] text-xs font-extrabold text-[#13243B]"
+          >
+            <Globe className="w-3.5 h-3.5 text-[#1769E8]" />
+            <span>{lang === 'ar' ? 'EN' : 'عربي'}</span>
+          </button>
+          <Link
+            to="/auth/login"
+            className="px-3.5 py-1.5 rounded-lg bg-white border border-[#DFE7F1] text-xs font-extrabold text-[#1769E8]"
+          >
+            {t('تسجيل الدخول', 'Sign In')}
+          </Link>
         </div>
+      </header>
 
-        {step === 2 ? (
-          /* STEP 2/4: Role Cards Grid matching Image 3 Left Phone */
-          <div className="my-5 space-y-5">
-            <div className="text-center space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2A5B] leading-snug">
-                {t('أنت داخل بلاستيكو', 'Inside PLASTICO,')}
-                <span className="block">{t('بصفتك إيه؟', 'What is your role?')}</span>
+      <div className="w-full max-w-4xl mx-auto px-3.5 sm:px-6 py-6 sm:py-8 flex-1 flex flex-col justify-center">
+        <div className="bg-white rounded-3xl border border-[#DFE7F1] shadow-xl p-4 sm:p-8 space-y-5">
+          {/* Step Indicator */}
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <span className="text-xs font-extrabold text-[#1769E8]">
+                {step === 1
+                  ? t('الخطوة 1 من 2 — بيانات الحساب الأساسية', 'Step 1 of 2 — Core Account Details')
+                  : t(
+                      `الخطوة 2 من 2 — ${roleLabels.roleTitleAr}`,
+                      `Step 2 of 2 — ${roleLabels.roleTitleEn}`
+                    )}
+              </span>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-[#13243B] mt-1">
+                {step === 1
+                  ? t('إنشاء حساب جديد في بلاستيكو', 'Create Your PLASTICO Account')
+                  : t(roleLabels.roleTitleAr, roleLabels.roleTitleEn)}
               </h1>
-              <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                {t(
-                  'اختر الدور المناسب لك لنقدم لك تجربة مخصصة',
-                  'Choose the role that fits you for a tailored experience'
-                )}
-              </p>
             </div>
-
-            <div className="grid grid-cols-2 gap-3.5">
-              {/* Card 1: فني أو مهندس */}
-              <button
-                type="button"
-                onClick={() => setSelectedGroup('tech_eng')}
-                className={`relative rounded-3xl p-3 bg-white text-center transition-all border-2 shadow-xs flex flex-col items-center ${
-                  selectedGroup === 'tech_eng'
-                    ? 'border-[#1D6BF3] ring-2 ring-blue-200'
-                    : 'border-slate-200/80 hover:border-blue-300'
-                }`}
-              >
-                {selectedGroup === 'tech_eng' && (
-                  <span className="absolute top-2.5 left-2.5 w-6 h-6 rounded-full bg-[#1D6BF3] text-white flex items-center justify-center text-xs font-bold">
-                    ✓
-                  </span>
-                )}
-                <div className="w-full h-28 rounded-2xl bg-gradient-to-b from-blue-100 to-blue-50 flex items-center justify-center overflow-hidden mb-2.5">
-                  <img
-                    src="/images/plastico/team/engineer-avatar.svg"
-                    alt=""
-                    className="w-24 h-24 object-contain"
-                  />
-                </div>
-                <div className="text-sm font-extrabold text-[#0B2A5B]">
-                  {t('فني أو مهندس', 'Technician or Engineer')}
-                </div>
-                <p className="text-[11px] text-slate-500 font-medium mt-0.5 leading-snug">
-                  {t('شارك خبراتك وساعد المجتمع', 'Share expertise & solve faults')}
-                </p>
-              </button>
-
-              {/* Card 2: صاحب مصنع */}
-              <button
-                type="button"
-                onClick={() => setSelectedGroup('factory')}
-                className={`relative rounded-3xl p-3 bg-white text-center transition-all border-2 shadow-xs flex flex-col items-center ${
-                  selectedGroup === 'factory'
-                    ? 'border-[#1D6BF3] ring-2 ring-blue-200'
-                    : 'border-slate-200/80 hover:border-blue-300'
-                }`}
-              >
-                {selectedGroup === 'factory' && (
-                  <span className="absolute top-2.5 left-2.5 w-6 h-6 rounded-full bg-[#1D6BF3] text-white flex items-center justify-center text-xs font-bold">
-                    ✓
-                  </span>
-                )}
-                <div className="w-full h-28 rounded-2xl bg-gradient-to-b from-slate-100 to-blue-50 flex items-center justify-center overflow-hidden mb-2.5">
-                  <img
-                    src="/images/plastico/factories/factory-3-packaging.svg"
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="text-sm font-extrabold text-[#0B2A5B]">
-                  {t('صاحب مصنع', 'Factory Owner')}
-                </div>
-                <p className="text-[11px] text-slate-500 font-medium mt-0.5 leading-snug">
-                  {t('أدر مصنعك وتواصل مع الكفاءات', 'Manage plant & connect with talent')}
-                </p>
-              </button>
-
-              {/* Card 3: مورد */}
-              <button
-                type="button"
-                onClick={() => setSelectedGroup('supplier')}
-                className={`relative rounded-3xl p-3 bg-white text-center transition-all border-2 shadow-xs flex flex-col items-center ${
-                  selectedGroup === 'supplier'
-                    ? 'border-[#1D6BF3] ring-2 ring-blue-200'
-                    : 'border-slate-200/80 hover:border-blue-300'
-                }`}
-              >
-                {selectedGroup === 'supplier' && (
-                  <span className="absolute top-2.5 left-2.5 w-6 h-6 rounded-full bg-[#1D6BF3] text-white flex items-center justify-center text-xs font-bold">
-                    ✓
-                  </span>
-                )}
-                <div className="w-full h-28 rounded-2xl bg-slate-100 flex items-center justify-center overflow-hidden mb-2.5">
-                  <img
-                    src="/images/plastico/marketplace/virgin-polymer-granules.svg"
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="text-sm font-extrabold text-[#0B2A5B]">
-                  {t('مورد', 'Supplier')}
-                </div>
-                <p className="text-[11px] text-slate-500 font-medium mt-0.5 leading-snug">
-                  {t('اعرض منتجاتك ووصل لعملاء جدد', 'Showcase resins & reach buyers')}
-                </p>
-              </button>
-
-              {/* Card 4: تاجر / سوق مستعمل */}
-              <button
-                type="button"
-                onClick={() => setSelectedGroup('trader')}
-                className={`relative rounded-3xl p-3 bg-white text-center transition-all border-2 shadow-xs flex flex-col items-center ${
-                  selectedGroup === 'trader'
-                    ? 'border-[#1D6BF3] ring-2 ring-blue-200'
-                    : 'border-slate-200/80 hover:border-blue-300'
-                }`}
-              >
-                {selectedGroup === 'trader' && (
-                  <span className="absolute top-2.5 left-2.5 w-6 h-6 rounded-full bg-[#1D6BF3] text-white flex items-center justify-center text-xs font-bold">
-                    ✓
-                  </span>
-                )}
-                <div className="w-full h-28 rounded-2xl bg-slate-100 flex items-center justify-center overflow-hidden mb-2.5">
-                  <img
-                    src="/images/plastico/marketplace/used-injection-machine.svg"
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="text-sm font-extrabold text-[#0B2A5B]">
-                  {t('تاجر / سوق مستعمل', 'Trader / Used Market')}
-                </div>
-                <p className="text-[11px] text-slate-500 font-medium mt-0.5 leading-snug">
-                  {t('بيع وشراء ماكينات وقوالب وقطع غيار', 'Buy & sell machines, molds & parts')}
-                </p>
-              </button>
-
-              {/* Card 5: مستخدم مهتم */}
-              <button
-                type="button"
-                onClick={() => setSelectedGroup('interested')}
-                className={`relative rounded-3xl p-3 bg-white text-center transition-all border-2 shadow-xs flex flex-col items-center ${
-                  selectedGroup === 'interested'
-                    ? 'border-[#1D6BF3] ring-2 ring-blue-200'
-                    : 'border-slate-200/80 hover:border-blue-300'
-                }`}
-              >
-                {selectedGroup === 'interested' && (
-                  <span className="absolute top-2.5 left-2.5 w-6 h-6 rounded-full bg-[#1D6BF3] text-white flex items-center justify-center text-xs font-bold">
-                    ✓
-                  </span>
-                )}
-                <div className="w-full h-24 rounded-2xl bg-blue-50 flex items-center justify-center overflow-hidden mb-2">
-                  <img
-                    src="/images/plastico/team/engineer-avatar.svg"
-                    alt=""
-                    className="w-20 h-20 object-contain"
-                  />
-                </div>
-                <div className="text-sm font-extrabold text-[#0B2A5B]">
-                  {t('مستخدم مهتم', 'Interested Learner')}
-                </div>
-                <p className="text-[11px] text-slate-500 font-medium mt-0.5 leading-snug">
-                  {t('تعلم وتابع أخبار الصناعة', 'Learn & follow industry news')}
-                </p>
-              </button>
-
-              {/* Motivational Typography Block matching Image 3 bottom-left */}
-              <div className="flex flex-col items-center justify-center text-center p-3">
-                <span className="text-sm font-bold text-[#1D6BF3]">
-                  {t('مهما كان دورك', 'Whatever your role')}
-                </span>
-                <span className="text-lg font-extrabold text-[#0B2A5B] leading-snug mt-1">
-                  {t('كلنا معاً لصناعة مستقبل أقوى', 'All together for a stronger future')}
-                </span>
-                <div className="w-20 h-1 rounded-full bg-[#1D6BF3] mt-2" />
-              </div>
-            </div>
-
-            <div className="space-y-2 pt-2">
-              <button
-                type="button"
-                onClick={handleContinueFromStep2}
-                className="w-full py-4 px-6 rounded-full bg-[#0B2A5B] hover:bg-[#133B7A] text-white font-extrabold text-base shadow-lg flex items-center justify-center gap-3 transition-all"
-              >
-                <span>{t('متابعة', 'Continue')}</span>
-                <ArrowIcon className="w-5 h-5" />
-              </button>
-              <p className="text-center text-xs font-bold text-slate-400">
-                {t('مجتمع صناعي .. تأثير أكبر', 'Industrial Community .. Greater Impact')}
-              </p>
+            <div className="px-3 py-1 rounded-lg bg-[#F4F7FC] border border-[#DFE7F1] text-xs font-extrabold text-[#071A33] font-mono-num shrink-0">
+              {step}/2
             </div>
           </div>
-        ) : (
-          /* STEP 3/4: هل أنت فني أم مهندس؟ matching Image 3 Right Phone & Image 6 Screen 4 */
-          <div className="my-5 space-y-4">
-            <div className="text-center space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2A5B]">
-                {t('هل أنت فني أم مهندس؟', 'Are you a Technician or Engineer?')}
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                {t('اختر ما ينطبق عليك', 'Choose what applies to you')}
-              </p>
-            </div>
 
-            {/* Two Tall Cards: مهندس vs فني */}
-            <div className="grid grid-cols-2 gap-3.5">
-              <button
-                type="button"
-                onClick={() => setSubRole('engineer')}
-                className={`relative rounded-3xl p-4 bg-white text-center transition-all border-2 shadow-xs flex flex-col items-center ${
-                  subRole === 'engineer'
-                    ? 'border-[#1D6BF3] ring-2 ring-blue-200'
-                    : 'border-slate-200 hover:border-blue-300'
-                }`}
-              >
-                {subRole === 'engineer' && (
-                  <span className="absolute top-3 left-3 w-6 h-6 rounded-full bg-[#1D6BF3] text-white flex items-center justify-center text-xs font-bold">
-                    ✓
-                  </span>
-                )}
-                <div className="text-base font-extrabold text-[#0B2A5B] mb-2">
-                  {t('مهندس', 'Engineer')}
-                </div>
-                <div className="w-full h-36 rounded-2xl bg-gradient-to-b from-blue-100 to-slate-50 flex items-center justify-center overflow-hidden mb-3">
-                  <img
-                    src="/images/plastico/team/engineer-avatar.svg"
-                    alt="Engineer"
-                    className="w-28 h-28 object-contain"
+          {errorMsg && (
+            <div
+              ref={registerErrorRef}
+              role="alert"
+              data-testid="register-error-alert"
+              className="scroll-mt-24 p-3.5 rounded-xl bg-rose-50 border-2 border-rose-200 text-rose-700 text-xs sm:text-sm font-bold flex items-start gap-2"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+
+          {step === 1 ? (
+            <form onSubmit={handleStep1Submit} className="space-y-4">
+              {/* Full Name */}
+              <div>
+                <label className="block text-xs font-bold text-[#13243B] mb-1">
+                  {t('الاسم الكامل أو اسم الجهة', 'Full Name')} *
+                </label>
+                <div className="flex items-center input-3d rounded-xl px-3.5 py-2.5">
+                  <User className="w-4 h-4 text-[#718096] shrink-0" />
+                  <input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder={t('مثال: م. أحمد محمود علي', 'e.g., Eng. Ahmed Mahmoud')}
+                    className="flex-1 min-w-0 px-3 bg-transparent text-xs sm:text-sm text-[#13243B] focus:outline-none"
                   />
-                </div>
-                <p className="text-xs text-[#0B2A5B] font-bold leading-snug">
-                  {t(
-                    'خبرة هندسية وتصميم وحلول تقنية',
-                    'Engineering expertise, design & technical solutions'
-                  )}
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setSubRole('technician')}
-                className={`relative rounded-3xl p-4 bg-white text-center transition-all border-2 shadow-xs flex flex-col items-center ${
-                  subRole === 'technician'
-                    ? 'border-[#1D6BF3] ring-2 ring-blue-200'
-                    : 'border-slate-200 hover:border-blue-300'
-                }`}
-              >
-                {subRole === 'technician' && (
-                  <span className="absolute top-3 left-3 w-6 h-6 rounded-full bg-[#1D6BF3] text-white flex items-center justify-center text-xs font-bold">
-                    ✓
-                  </span>
-                )}
-                <div className="text-base font-extrabold text-[#0B2A5B] mb-2">
-                  {t('فني', 'Technician')}
-                </div>
-                <div className="w-full h-36 rounded-2xl bg-gradient-to-b from-slate-100 to-blue-50 flex items-center justify-center overflow-hidden mb-3">
-                  <img
-                    src="/images/plastico/team/engineer-avatar.svg"
-                    alt="Technician"
-                    className="w-28 h-28 object-contain"
-                  />
-                </div>
-                <p className="text-xs text-[#0B2A5B] font-bold leading-snug">
-                  {t(
-                    'خبرة عملية في تشغيل وصيانة الماكينات',
-                    'Hands-on expertise in machine operation & maintenance'
-                  )}
-                </p>
-              </button>
-            </div>
-
-            {/* Quick Specialty Pills matching Image 6 Screen 4 */}
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {['ميكانيكا', 'هيدروليك', 'تحكم وكهرباء', 'جودة وخامات'].map((spec) => (
-                <button
-                  key={spec}
-                  type="button"
-                  onClick={() => setSpecialty(spec)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-colors ${
-                    specialty === spec
-                      ? 'bg-[#0B2A5B] text-white'
-                      : 'bg-white border border-slate-200 text-[#0B2A5B]'
-                  }`}
-                >
-                  {spec}
-                </button>
-              ))}
-            </div>
-
-            {/* Benefits Box matching Image 3 Right Phone */}
-            <div className="rounded-3xl bg-white p-4 border border-slate-200/80 shadow-2xs space-y-2.5">
-              <h3 className="text-xs sm:text-sm font-extrabold text-[#0B2A5B] text-center">
-                {subRole === 'engineer'
-                  ? t('مزايا حسابك كمهندس في بلاستيكو', 'Your Engineer Account Benefits in PLASTICO')
-                  : t('مزايا حسابك كفني في بلاستيكو', 'Your Technician Account Benefits in PLASTICO')}
-              </h3>
-              {[
-                {
-                  icon: User,
-                  textAr: 'إظهار خبراتك وتخصصك للجهات الباحثة عن مهندسين وفنيين',
-                  textEn: 'Showcase your specialty to hiring factories',
-                },
-                {
-                  icon: Wrench,
-                  textAr: 'المشاركة في حل الأعطال التقنية المعقدة واكتساب نقاط سمعة',
-                  textEn: 'Solve complex machine faults & earn reputation points',
-                },
-                {
-                  icon: Settings,
-                  textAr: 'الوصول إلى أحدث التقنيات والكورسات الهندسية المعتمدة',
-                  textEn: 'Access modern technologies & certified courses',
-                },
-                {
-                  icon: Briefcase,
-                  textAr: 'فرص توظيف محلية ودولية في كبرى مصانع البلاستيك',
-                  textEn: 'Local & regional job opportunities in top factories',
-                },
-              ].map((b) => {
-                const Icon = b.icon;
-                return (
-                  <div key={b.textAr} className="flex items-center gap-2.5 text-xs font-semibold text-[#0B2A5B]">
-                    <div className="w-7 h-7 rounded-full bg-blue-50 text-[#1D6BF3] flex items-center justify-center shrink-0">
-                      <Icon className="w-3.5 h-3.5" />
-                    </div>
-                    <span>{t(b.textAr, b.textEn)}</span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Gold Crown Banner matching Image 3 Right Phone */}
-            <div className="rounded-2xl bg-[#FEF6E0] border border-amber-200/80 p-3.5 flex items-center justify-between gap-3">
-              <div className="flex-1 text-center">
-                <div className="text-xs font-extrabold text-[#0B2A5B]">
-                  {t('خبراتك تصنع فرقاً حقيقياً', 'Your expertise makes a real difference')}
-                </div>
-                <div className="text-[11px] font-bold text-slate-600">
-                  {t('وانضم إلى مجتمع هندسي قوي', 'Join a powerful engineering community')}
                 </div>
               </div>
-              <Crown className="w-7 h-7 text-amber-500 fill-amber-400 shrink-0" />
-            </div>
 
-            {/* Bottom Dual Buttons: متابعة & السابق */}
-            <div className="grid grid-cols-12 gap-3 pt-1">
+              {/* Email */}
+              <div>
+                <label className="block text-xs font-bold text-[#13243B] mb-1">
+                  {t('البريد الإلكتروني', 'Email Address')} *
+                </label>
+                <div className="flex items-center input-3d rounded-xl px-3.5 py-2.5">
+                  <Mail className="w-4 h-4 text-[#718096] shrink-0" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    className="flex-1 min-w-0 px-3 bg-transparent text-xs sm:text-sm text-[#13243B] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Password & Confirm Password */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#13243B] mb-1">
+                    {t('كلمة المرور', 'Password')} *
+                  </label>
+                  <div className="flex items-center input-3d rounded-xl px-3.5 py-2.5">
+                    <Lock className="w-4 h-4 text-[#718096] shrink-0" />
+                    <input
+                      type={showPass ? 'text' : 'password'}
+                      required
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={t('6 أحرف على الأقل', 'Min 6 characters')}
+                      className="flex-1 min-w-0 px-2.5 bg-transparent text-xs sm:text-sm text-[#13243B] focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPass(!showPass)}
+                      className="text-[#718096]"
+                    >
+                      {showPass ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#13243B] mb-1">
+                    {t('تأكيد كلمة المرور', 'Confirm Password')} *
+                  </label>
+                  <div className="flex items-center input-3d rounded-xl px-3.5 py-2.5">
+                    <Lock className="w-4 h-4 text-[#718096] shrink-0" />
+                    <input
+                      type={showPass ? 'text' : 'password'}
+                      required
+                      minLength={6}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder={t('أعد كتابة كلمة المرور', 'Repeat password')}
+                      className="flex-1 min-w-0 px-2.5 bg-transparent text-xs sm:text-sm text-[#13243B] focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Country & Industrial City */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#13243B] mb-1">
+                    {t('الدولة', 'Country')} *
+                  </label>
+                  <select
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className="w-full input-3d rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-[#13243B]"
+                  >
+                    <option value="مصر">{t('مصر', 'Egypt')}</option>
+                    <option value="السعودية">{t('السعودية', 'Saudi Arabia')}</option>
+                    <option value="الإمارات">{t('الإمارات', 'UAE')}</option>
+                    <option value="الأردن">{t('الأردن', 'Jordan')}</option>
+                    <option value="المغرب">{t('المغرب', 'Morocco')}</option>
+                    <option value="الجزائر">{t('الجزائر', 'Algeria')}</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#13243B] mb-1">
+                    {t('المدينة الصناعية', 'Industrial City')}
+                  </label>
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full input-3d rounded-xl px-3 py-2.5 text-xs sm:text-sm text-[#13243B]"
+                  />
+                </div>
+              </div>
+
+              {/* Visually Rich Role Account Type Selection Cards */}
+              <div className="space-y-2.5 pt-1">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <label className="block text-xs sm:text-sm font-extrabold text-[#13243B]">
+                    {t(
+                      'اختر دورك الصناعي في بلاستيكو (يخصص حقول التسجيل والملف المهني)',
+                      'Select Your Industrial Role in PLASTICO'
+                    )}{' '}
+                    *
+                  </label>
+                  <span className="text-[11px] font-bold text-[#1769E8]">
+                    {t('محدد حالياً:', 'Selected:')}{' '}
+                    {t(
+                      REGISTRATION_ROLE_CARDS.find((r) => r.id === selectedRoleCardId)?.titleAr || '',
+                      REGISTRATION_ROLE_CARDS.find((r) => r.id === selectedRoleCardId)?.titleEn || ''
+                    )}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                  {REGISTRATION_ROLE_CARDS.map((roleCard) => {
+                    const active = selectedRoleCardId === roleCard.id;
+                    return (
+                      <button
+                        key={roleCard.id}
+                        type="button"
+                        data-testid={`role-card-${roleCard.id}`}
+                        onClick={() => handleSelectRoleCard(roleCard)}
+                        aria-pressed={active}
+                        className={`group rounded-2xl border overflow-hidden text-start transition-all flex flex-col justify-between cursor-pointer ${
+                          active
+                            ? 'bg-[#1769E8]/6 border-[#1769E8] ring-2 ring-[#1769E8] shadow-md'
+                            : 'bg-[#F4F7FC] border-[#DFE7F1] hover:border-[#1769E8]/60 hover:bg-white'
+                        }`}
+                      >
+                        <div>
+                          <div className="relative aspect-[4/3] w-full bg-[#071A33] overflow-hidden">
+                            <img
+                              src={roleCard.image}
+                              alt={t(roleCard.titleAr, roleCard.titleEn)}
+                              className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <span
+                              className={`absolute top-2 start-2 px-2 py-0.5 rounded-md text-[10px] font-extrabold backdrop-blur-xs ${
+                                active
+                                  ? 'bg-[#FF8A2A] text-white'
+                                  : 'bg-[#071A33]/80 text-[#27BED6] border border-white/15'
+                              }`}
+                            >
+                              {t(roleCard.badgeAr, roleCard.badgeEn)}
+                            </span>
+                            {active && (
+                              <span className="absolute top-2 end-2 w-6 h-6 rounded-full bg-[#1769E8] text-white flex items-center justify-center shadow-md">
+                                <CheckCircle2 className="w-4 h-4" />
+                              </span>
+                            )}
+                          </div>
+                          <div className="p-2.5 sm:p-3 space-y-1">
+                            <div className="text-xs sm:text-[13px] font-extrabold text-[#13243B] leading-snug">
+                              {t(roleCard.titleAr, roleCard.titleEn)}
+                            </div>
+                            <p className="text-[10px] sm:text-[11px] text-[#718096] leading-relaxed line-clamp-2">
+                              {t(roleCard.subtitleAr, roleCard.subtitleEn)}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <button
-                type="button"
-                onClick={handleContinueFromStep3}
-                className="col-span-8 py-4 px-5 rounded-full bg-[#0B2A5B] hover:bg-[#133B7A] text-white font-extrabold text-sm sm:text-base shadow-lg flex items-center justify-center gap-2"
+                type="submit"
+                disabled={submitting}
+                className="w-full py-3.5 px-6 rounded-xl bg-[#FF8A2A] hover:bg-[#F07B1A] disabled:opacity-50 text-white font-extrabold text-sm shadow-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <span>{t('متابعة', 'Continue')}</span>
+                <span>
+                  {submitting
+                    ? t('جاري إنشاء الحساب...', 'Creating account...')
+                    : t('إنشاء الحساب والمتابعة لتخصيص ملفك', 'Create Account & Continue')}
+                </span>
                 <ArrowIcon className="w-4 h-4" />
               </button>
+
               <button
                 type="button"
-                onClick={() => setStep(2)}
-                className="col-span-4 py-4 px-4 rounded-full bg-[#E8EEF6] hover:bg-slate-200 text-[#0B2A5B] font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5"
+                data-testid="register-visitor-btn"
+                onClick={() => {
+                  enterVisitorMode();
+                  navigate('/app/home');
+                }}
+                className="w-full py-3 px-4 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <span>{t('السابق', 'Back')}</span>
+                <Eye className="w-4 h-4 text-[#FF8A2A] shrink-0" />
+                <span>
+                  {t(
+                    'المتابعة كزائر (تصفح فقط بدون نشر أو تعليق)',
+                    'Continue as Visitor (View-Only Mode)'
+                  )}
+                </span>
               </button>
-            </div>
-          </div>
-        )}
+
+              <div className="text-center text-xs font-bold text-[#718096] pt-2 border-t border-[#DFE7F1]">
+                {t('لديك حساب بالفعل؟', 'Already have an account?')}{' '}
+                <Link
+                  to="/auth/login"
+                  className="text-[#1769E8] font-extrabold hover:underline"
+                >
+                  {t('تسجيل الدخول', 'Sign In')}
+                </Link>
+              </div>
+            </form>
+          ) : (
+            /* STEP 2: Dynamic Role-Specific Details for Each of the 5 Industrial Roles */
+            <form
+              onSubmit={handleStep2Complete}
+              data-testid={`register-step2-${accountType}`}
+              className="space-y-4"
+            >
+              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                <span>
+                  {t(
+                    'تم حفظ حسابك في قاعدة البيانات! أكمل الآن البيانات المخصصة لدورك الصناعي لبناء ملفك المهني المتكامل.',
+                    'Account created! Complete the fields tailored to your industrial role below.'
+                  )}
+                </span>
+              </div>
+
+              {/* ROLE 1: FACTORY OWNER ('factory') */}
+              {accountType === 'factory' && (
+                <div className="space-y-3.5 p-4 rounded-2xl bg-[#F4F7FC] border border-[#DFE7F1]">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-[#071A33]">
+                    {t('بيانات المصنع وخطوط الإنتاج والطاقة التصنيعية', 'Factory & Production Capacity Details')}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('اسم المصنع', 'Factory Name')} *
+                      </label>
+                      <input
+                        type="text"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        placeholder={t('مثال: مصنع الدلتا للصناعات البلاستيكية', 'e.g., Delta Plastics Factory')}
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('نوع النشاط الصناعي', 'Industrial Activity Type')}
+                      </label>
+                      <input
+                        type="text"
+                        value={factoryActivityType}
+                        onChange={(e) => setFactoryActivityType(e.target.value)}
+                        placeholder={t('حقن، نفخ، سحب مواسير، فيلم وتغليف...', 'Injection, Blow, Extrusion, Film...')}
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('عدد الماكينات وخطوط الإنتاج', 'Number of Machines')}
+                      </label>
+                      <input
+                        type="text"
+                        value={machinesCount}
+                        onChange={(e) => setMachinesCount(e.target.value)}
+                        placeholder="مثال: 14 ماكينة حقن ونفخ"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('الطاقة الإنتاجية الشهرية', 'Monthly Production Capacity')}
+                      </label>
+                      <input
+                        type="text"
+                        value={productionCapacity}
+                        onChange={(e) => setProductionCapacity(e.target.value)}
+                        placeholder="مثال: 500 طن / شهر"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('بيانات التواصل (هاتف / واتساب المصنع)', 'Factory Contact Phone')}
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+20 100 000 0000"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#13243B] mb-1">
+                      {t('المنتجات التي يصنعها المصنع', 'Products Manufactured')}
+                    </label>
+                    <input
+                      type="text"
+                      value={productsManufactured}
+                      onChange={(e) => setProductsManufactured(e.target.value)}
+                      placeholder="مثال: عبوات غذائية ودوائية، جراكن HDPE، صناديق بلاستيكية، مواسير UPVC"
+                      className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* ROLE 2: TECHNICIAN & WORKER ('technician') */}
+              {accountType === 'technician' && (
+                <div className="space-y-3.5 p-4 rounded-2xl bg-[#F4F7FC] border border-[#DFE7F1]">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-[#071A33]">
+                    {t('بيانات الفني والعامل الصناعي', 'Technician & Worker Details')}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('التخصص الصناعي', 'Industrial Specialty')}
+                      </label>
+                      <input
+                        type="text"
+                        value={specialty}
+                        onChange={(e) => setSpecialty(e.target.value)}
+                        placeholder="مثال: فني تشغيل وضبط قوالب حقن بلاستيك"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('الوظيفة الحالية أو المطلوبة', 'Current or Desired Job')}
+                      </label>
+                      <input
+                        type="text"
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        placeholder="مثال: مشرف وردية حقن / فني صيانة قوالب"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('سنوات الخبرة العملية', 'Years of Experience')}
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={50}
+                        value={experienceYears}
+                        onChange={(e) => setExperienceYears(Number(e.target.value))}
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('الماكينات التي تمتلك خبرة بها', 'Machines Experienced With')}
+                      </label>
+                      <input
+                        type="text"
+                        value={machinesAndSystems}
+                        onChange={(e) => setMachinesAndSystems(e.target.value)}
+                        placeholder="Haitian، Chen Hsong، ماكينات نفخ وسحب"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('رقم الهاتف للتواصل', 'Contact Phone')}
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+20 100 000 0000"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('الخبرات السابقة (المصانع التي عملت بها)', 'Previous Experiences')}
+                      </label>
+                      <input
+                        type="text"
+                        value={pastExperienceSummary}
+                        onChange={(e) => setPastExperienceSummary(e.target.value)}
+                        placeholder="مثال: مصنع الوطنية للبلاستيك (4 سنوات)"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('المؤهلات والشهادات الفنية', 'Qualifications & Certificates')}
+                      </label>
+                      <input
+                        type="text"
+                        value={educationAndCerts}
+                        onChange={(e) => setEducationAndCerts(e.target.value)}
+                        placeholder="مثال: دبلوم صناعي + شهادة صيانة هيدروليك"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ROLE 3: ENGINEER ('engineer') */}
+              {accountType === 'engineer' && (
+                <div className="space-y-3.5 p-4 rounded-2xl bg-[#F4F7FC] border border-[#DFE7F1]">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-[#071A33]">
+                    {t('بيانات المهندس الصناعي والخبرات الهندسية', 'Industrial Engineer Details')}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('التخصص الهندسي', 'Engineering Specialty')}
+                      </label>
+                      <input
+                        type="text"
+                        value={specialty}
+                        onChange={(e) => setSpecialty(e.target.value)}
+                        placeholder="مثال: هندسة ميكانيكا وإنتاج / هندسة بوليمرات وجودة"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('المجالات الصناعية', 'Industrial Sectors')}
+                      </label>
+                      <input
+                        type="text"
+                        value={industrialSectors}
+                        onChange={(e) => setIndustrialSectors(e.target.value)}
+                        placeholder="الحقن، القوالب، النفخ، الفيلم، وتوكيد الجودة"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('سنوات الخبرة العملية', 'Practical Experience (Years)')}
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={50}
+                        value={experienceYears}
+                        onChange={(e) => setExperienceYears(Number(e.target.value))}
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('البرامج والأنظمة التي تجيد استخدامها', 'Software & Systems Mastered')}
+                      </label>
+                      <input
+                        type="text"
+                        value={softwareAndSystems}
+                        onChange={(e) => setSoftwareAndSystems(e.target.value)}
+                        placeholder="SolidWorks, Moldflow, AutoCAD, Siemens PLC, ERP, ISO 9001"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('المؤهلات والشهادات المعتمدة', 'Qualifications & Certificates')}
+                      </label>
+                      <input
+                        type="text"
+                        value={educationAndCerts}
+                        onChange={(e) => setEducationAndCerts(e.target.value)}
+                        placeholder="بكالوريوس هندسة، Six Sigma Green Belt، PMP"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('الخبرات والمشروعات السابقة', 'Past Experiences & Projects')}
+                      </label>
+                      <input
+                        type="text"
+                        value={pastExperienceSummary}
+                        onChange={(e) => setPastExperienceSummary(e.target.value)}
+                        placeholder="تأسيس خط حقن عبوات طبية وتقليل الهالك بنسبة 18%"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ROLE 4: RAW MATERIALS & MASTERBATCH SUPPLIER ('supplier') */}
+              {accountType === 'supplier' && (
+                <div className="space-y-3.5 p-4 rounded-2xl bg-[#F4F7FC] border border-[#DFE7F1]">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-[#071A33]">
+                    {t(
+                      'بيانات مورد الخامات والماسترباتش ونطاق التوريد',
+                      'Raw Materials & Masterbatch Supplier Details'
+                    )}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('اسم شركة التوريد أو الوكالة', 'Supplier Company Name')} *
+                      </label>
+                      <input
+                        type="text"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        placeholder="مثال: الشركة العربية لتوريد البوليمرات والماسترباتش"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('المنتجات والدرجات المتوفرة', 'Supplied Polymer Grades & Products')}
+                      </label>
+                      <input
+                        type="text"
+                        value={supplierProducts}
+                        onChange={(e) => setSupplierProducts(e.target.value)}
+                        placeholder="خامات PP، PE، PET، PVC، ABS، ماسترباتش ألوان وأبيض وأسود"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('العلامات التجارية المتوفرة', 'Brands Supplied')}
+                      </label>
+                      <input
+                        type="text"
+                        value={supplierBrands}
+                        onChange={(e) => setSupplierBrands(e.target.value)}
+                        placeholder="SABIC, Borouge, Tasnee, ExxonMobil"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('نطاق التوريد والكميات', 'Supply Scope & Volumes')}
+                      </label>
+                      <input
+                        type="text"
+                        value={supplyScope}
+                        onChange={(e) => setSupplyScope(e.target.value)}
+                        placeholder="توريد محلي ودولي — كميات كبيرة وصغيرة + عينات"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('الدول والمناطق التي يخدمها المورد', 'Countries & Regions Served')}
+                      </label>
+                      <input
+                        type="text"
+                        value={countriesServed}
+                        onChange={(e) => setCountriesServed(e.target.value)}
+                        placeholder="مصر، السعودية، الإمارات، الأردن، المغرب"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ROLE 5: MACHINERY & EQUIPMENT TRADER ('trader') */}
+              {accountType === 'trader' && (
+                <div className="space-y-3.5 p-4 rounded-2xl bg-[#F4F7FC] border border-[#DFE7F1]">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-[#071A33]">
+                    {t(
+                      'بيانات تاجر الماكينات والمعدات الصناعية',
+                      'Machinery & Equipment Trader Details'
+                    )}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('اسم المعرض أو الشركة التجارية', 'Showroom / Company Name')}
+                      </label>
+                      <input
+                        type="text"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        placeholder="مثال: الدولية لتجارة ماكينات البلاستيك المستعملة والجديدة"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('أنواع الماكينات والمعدات', 'Types of Machinery & Equipment')}
+                      </label>
+                      <input
+                        type="text"
+                        value={equipmentTypes}
+                        onChange={(e) => setEquipmentTypes(e.target.value)}
+                        placeholder="ماكينات حقن، نفخ، خطوط سحب، كسارات، شيلرات، وسخانات"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('حالة المعدات (جديد / مستعمل)', 'New or Used Status')}
+                      </label>
+                      <select
+                        value={conditionOffered}
+                        onChange={(e) => setConditionOffered(e.target.value)}
+                        className="w-full input-3d rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-[#13243B]"
+                      >
+                        <option value="جديد ومستعمل مفحوص فنياً">
+                          {t('جديد ومستعمل مفحوص فنياً', 'New & Inspected Used')}
+                        </option>
+                        <option value="ماكينات مستعملة استيراد خارج">
+                          {t('ماكينات مستعملة استيراد خارج', 'Imported Used Machinery')}
+                        </option>
+                        <option value="ماكينات ومعدات جديدة بالضمان">
+                          {t('ماكينات ومعدات جديدة بالضمان', 'Brand New with Warranty')}
+                        </option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('العلامات التجارية المتوفرة', 'Machinery Brands')}
+                      </label>
+                      <input
+                        type="text"
+                        value={traderBrands}
+                        onChange={(e) => setTraderBrands(e.target.value)}
+                        placeholder="Haitian, Engel, Arburg, KraussMaffei, Battenfeld"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#13243B] mb-1">
+                        {t('خدمات البيع والشراء وقطع الغيار والصيانة', 'Buy/Sell, Spare Parts & Maintenance')}
+                      </label>
+                      <input
+                        type="text"
+                        value={sparePartsAndMaintenance}
+                        onChange={(e) => setSparePartsAndMaintenance(e.target.value)}
+                        placeholder="بيع وشراء واستبدال + توفير قطع غيار وصيانة"
+                        className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Role-SpecificSelectable Options / Capabilities Chips */}
+              <div>
+                <label className="block text-xs font-extrabold text-[#13243B] mb-1.5">
+                  {t(roleLabels.skillsLabelAr, roleLabels.skillsLabelEn)}
+                </label>
+                <div
+                  className="flex flex-wrap gap-1.5"
+                  data-testid="role-specific-skills-list"
+                >
+                  {availableRoleSkills.map((sk) => {
+                    const active = selectedSkills.includes(sk);
+                    return (
+                      <button
+                        key={sk}
+                        type="button"
+                        onClick={() => toggleSkill(sk)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border cursor-pointer ${
+                          active
+                            ? 'bg-[#1769E8] text-white border-[#1769E8]'
+                            : 'bg-[#F4F7FC] text-[#13243B] border-[#DFE7F1] hover:border-[#1769E8]/50'
+                        }`}
+                      >
+                        {sk}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#13243B] mb-1">
+                  {t(roleLabels.bioLabelAr, roleLabels.bioLabelEn)}
+                </label>
+                <textarea
+                  rows={2}
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder={t(
+                    'اكتب نبذة مختصرة تظهر في ملفك المهني أمام المصانع والشركات...',
+                    'Write a brief summary displayed on your industrial profile...'
+                  )}
+                  className="w-full input-3d rounded-xl px-3.5 py-2 text-xs sm:text-sm"
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => navigate('/app/home')}
+                  className="px-4 py-3 rounded-xl bg-[#F4F7FC] hover:bg-slate-200/70 text-[#13243B] text-xs font-extrabold cursor-pointer"
+                >
+                  {t('تخطي وإكمال لاحقاً', 'Skip & Complete Later')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 py-3 px-6 rounded-xl bg-[#1769E8] hover:bg-[#1258C7] text-white text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>
+                    {submitting
+                      ? t('جاري الحفظ...', 'Saving...')
+                      : t('حفظ الملف المخصص والدخول للمنصة', 'Save Role Profile & Open Platform')}
+                  </span>
+                  <ArrowIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
 /* ============================================================================
-   Screen 05: Step 4/4 Complete Professional Profile (/onboarding/setup)
-   Matches Image 4 (left phone) & Image 6 (Screen 5)
+   PASSWORD RESET PAGE (/auth/forgot-password)
    ============================================================================ */
-export const OnboardingSetupPage: React.FC = () => {
-  const { lang, t, currentUser, updateProfile, showToast } = usePlastico();
+export const ForgotPasswordPage: React.FC = () => {
+  const { t } = usePlastico();
   const navigate = useNavigate();
 
-  const [fullName, setFullName] = useState('أحمد محمد علي');
-  const [specialty, setSpecialty] = useState('ميكانيكا');
-  const [yearsExp, setYearsExp] = useState(5);
-  const [selectedMachines, setSelectedMachines] = useState<string[]>([
-    'ماكينات حقن',
-    'ماكينات إعادة تدوير',
-  ]);
-  const [selectedMaterials, setSelectedMaterials] = useState<string[]>(['PET']);
-  const [companies, setCompanies] = useState([
-    {
-      id: 'comp-1',
-      name: 'المصرية للبلاستيك',
-      role: 'فني صيانة | 2022 - 2024',
-      code: 'RTHE',
-    },
-    {
-      id: 'comp-2',
-      name: 'دلتا للصناعات البلاستيكية',
-      role: 'مشرف صيانة | 2020 - 2022',
-      code: 'DELTA',
-    },
-  ]);
-  const [country, setCountry] = useState('مصر');
-  const [city, setCity] = useState('القاهرة');
+  const [email, setEmail] = useState('');
+  const [resetToken, setResetToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [step, setStep] = useState<'request' | 'redeem' | 'done'>('request');
+  const [message, setMessage] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const ArrowIcon = lang === 'ar' ? ArrowLeft : ArrowRight;
-  const BackChevron = lang === 'ar' ? ChevronLeft : ChevronRight;
-
-  const toggleMachine = (m: string) => {
-    setSelectedMachines((prev) =>
-      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]
-    );
-  };
-
-  const toggleMaterial = (mat: string) => {
-    setSelectedMaterials((prev) =>
-      prev.includes(mat) ? prev.filter((x) => x !== mat) : [...prev, mat]
-    );
-  };
-
-  const handleAddCompany = () => {
-    const nextId = `comp-${Date.now()}`;
-    setCompanies((prev) => [
-      ...prev,
-      {
-        id: nextId,
-        name: 'شركة النيل للبلاستيك',
-        role: 'مهندس صيانة | 2024 - الآن',
-        code: 'NILE',
-      },
-    ]);
-  };
-
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleRequestToken = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfile({
-      name: fullName,
-      title: `مهندس ${specialty}`,
-      country,
-      city,
-      yearsOfExperience: yearsExp,
-      skills: [...selectedMachines, ...selectedMaterials],
-    });
-    showToast('تم إنشاء ملفك المهني بنجاح!', 'Your professional profile is ready!');
-    navigate('/app/profile');
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorMsg(data.error || 'تعذر إرسال الطلب.');
+      } else {
+        setMessage(data.message);
+        if (data.previewResetToken) {
+          setResetToken(data.previewResetToken);
+        }
+        setStep('redeem');
+      }
+    } catch {
+      setErrorMsg('تعذر الاتصال بالخادم.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: resetToken, newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorMsg(data.error || 'رمز الاستعادة غير صالح.');
+      } else {
+        setMessage(data.message);
+        setStep('done');
+      }
+    } catch {
+      setErrorMsg('تعذر الاتصال بالخادم.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F7FB] py-6 px-4">
-      <div className="w-full max-w-md mx-auto space-y-5">
-        {/* Top Bar with Progress 4/4 */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => navigate('/app/home')}
-              className="text-xs sm:text-sm font-extrabold text-[#1D6BF3]"
-            >
-              {t('تخطي', 'Skip')}
-            </button>
-            <PlasticoLogo variant="horizontal" size="sm" />
-            <button
-              type="button"
-              onClick={() => navigate('/onboarding/type')}
-              className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-[#0B2A5B]"
-            >
-              <span>{t('رجوع', 'Back')}</span>
-              <BackChevron className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-extrabold text-[#0B2A5B] font-mono-num">4/4</span>
-            <div className="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden">
-              <div className="w-full h-full rounded-full bg-gradient-to-l from-[#1D6BF3] to-[#0B2A5B]" />
-            </div>
-          </div>
-        </div>
-
-        {/* Title */}
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-extrabold text-[#0B2A5B]">
-            {t('أكمل بياناتك المهنية', 'Complete Your Professional Profile')}
+    <div className="min-h-screen bg-[#F4F7FC] flex flex-col justify-center px-4 py-10">
+      <div className="max-w-md w-full mx-auto bg-white rounded-3xl border border-[#DFE7F1] p-6 sm:p-8 shadow-xl space-y-5">
+        <PlasticoLogo variant="horizontal" theme="light" size="sm" />
+        <div>
+          <h1 className="text-xl font-extrabold text-[#13243B]">
+            {t('استعادة كلمة المرور', 'Reset Your Password')}
           </h1>
-          <p className="text-xs text-slate-600 font-medium">
+          <p className="text-xs text-[#718096] mt-1">
             {t(
-              'معلوماتك تساعدك على الحصول على فرص أفضل',
-              'Your details help you get matched with better opportunities'
+              'أدخل بريدك الإلكتروني لإصدار رمز آمن لإعادة تعيين كلمة المرور.',
+              'Enter your email address to generate a time-limited password reset token.'
             )}
           </p>
         </div>
 
-        {/* Avatar Upload Row */}
-        <div className="flex items-center justify-center gap-4">
-          <div className="relative">
-            <img
-              src="/images/plastico/team/engineer-avatar.svg"
-              alt={currentUser.name}
-              className="w-20 h-20 rounded-full object-cover border-2 border-blue-200 shadow-sm"
-            />
-            <span className="absolute bottom-0 left-0 w-7 h-7 rounded-full bg-[#0B2A5B] text-white flex items-center justify-center shadow">
-              <Camera className="w-3.5 h-3.5" />
-            </span>
+        {errorMsg && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
+            {errorMsg}
           </div>
-          <div className="text-xs font-bold text-[#1D6BF3]">
-            <div>{t('أضف صورتك', 'Add your photo')}</div>
-            <div className="text-slate-500">{t('(اختياري)', '(Optional)')}</div>
-          </div>
-        </div>
+        )}
 
-        {/* Form matching Image 4 Left Phone */}
-        <form onSubmit={handleSaveProfile} className="space-y-4">
-          {/* Full Name */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-extrabold text-[#0B2A5B]">
-              {t('الاسم الكامل', 'Full Name')} <span className="text-[#EF4444]">*</span>
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-sm font-bold text-[#0B2A5B] focus:outline-none focus:border-[#1D6BF3]"
-            />
+        {message && (
+          <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-[#13243B] text-xs font-bold">
+            {message}
           </div>
+        )}
 
-          {/* Specialty & Years of Experience */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="block text-xs font-extrabold text-[#0B2A5B]">
-                {t('التخصص الهندسي', 'Specialty')} <span className="text-[#EF4444]">*</span>
+        {step === 'request' && (
+          <form onSubmit={handleRequestToken} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-[#13243B] mb-1">
+                {t('البريد الإلكتروني المسجل', 'Registered Email')}
               </label>
-              <select
-                value={specialty}
-                onChange={(e) => setSpecialty(e.target.value)}
-                className="w-full px-3.5 py-3 rounded-2xl bg-white border border-slate-200 text-sm font-bold text-[#0B2A5B] focus:outline-none focus:border-[#1D6BF3]"
-              >
-                <option value="ميكانيكا">ميكانيكا</option>
-                <option value="هيدروليك">هيدروليك</option>
-                <option value="كهرباء وتحكم">كهرباء وتحكم</option>
-                <option value="بوليمرات وجودة">بوليمرات وجودة</option>
-              </select>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+              />
             </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-[#1769E8] hover:bg-[#1258C7] text-white text-xs sm:text-sm font-extrabold"
+            >
+              {loading
+                ? t('جاري المعالجة...', 'Processing...')
+                : t('إرسال رمز الاستعادة', 'Send Reset Token')}
+            </button>
+          </form>
+        )}
 
-            <div className="space-y-1.5">
-              <label className="block text-xs font-extrabold text-[#0B2A5B]">
-                {t('سنوات الخبرة', 'Experience')} <span className="text-[#EF4444]">*</span>
+        {step === 'redeem' && (
+          <form onSubmit={handleResetPassword} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-[#13243B] mb-1">
+                {t('رمز الاستعادة (صالح لمدة 30 دقيقة)', 'Reset Token (Valid 30m)')}
               </label>
-              <div className="flex items-center justify-between px-3 py-2.5 rounded-2xl bg-white border border-slate-200">
-                <span className="text-sm font-extrabold text-[#0B2A5B] font-mono-num">
-                  {yearsExp} {t('سنوات', 'Years')}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setYearsExp((y) => y + 1)}
-                  className="w-7 h-7 rounded-lg bg-blue-50 text-[#1D6BF3] flex items-center justify-center font-bold"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
+              <div className="flex items-center input-3d rounded-xl px-3 py-2.5">
+                <KeyRound className="w-4 h-4 text-[#1769E8]" />
+                <input
+                  type="text"
+                  required
+                  value={resetToken}
+                  onChange={(e) => setResetToken(e.target.value)}
+                  className="flex-1 px-2 bg-transparent text-xs font-mono-num focus:outline-none"
+                />
               </div>
             </div>
-          </div>
-
-          {/* Machine Types Chips */}
-          <div className="space-y-2">
-            <label className="block text-xs font-extrabold text-[#0B2A5B]">
-              {t('أنواع الماكينات التي عملت عليها', 'Machines You Have Worked With')}
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {[
-                'ماكينات حقن',
-                'ماكينات نفخ',
-                'ماكينات سحب',
-                'ماكينات إعادة تدوير',
-                'ماكينات فيلم',
-              ].map((m) => {
-                const active = selectedMachines.includes(m);
-                return (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => toggleMachine(m)}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all ${
-                      active
-                        ? 'bg-[#0B2A5B] text-white shadow-xs'
-                        : 'bg-[#E8EEF6] text-[#0B2A5B] hover:bg-slate-200'
-                    }`}
-                  >
-                    {m}
-                  </button>
-                );
-              })}
+            <div>
+              <label className="block text-xs font-bold text-[#13243B] mb-1">
+                {t('كلمة المرور الجديدة', 'New Password')}
+              </label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder={t('6 أحرف على الأقل', 'At least 6 characters')}
+                className="w-full input-3d rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+              />
             </div>
-          </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-[#FF8A2A] hover:bg-[#F07B1A] text-white text-xs sm:text-sm font-extrabold"
+            >
+              {t('تحديث كلمة المرور الآن', 'Update Password Now')}
+            </button>
+          </form>
+        )}
 
-          {/* Materials Chips */}
-          <div className="space-y-2">
-            <label className="block text-xs font-extrabold text-[#0B2A5B]">
-              {t('الخامات التي لديك خبرة بها', 'Polymers & Resins Experience')}
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {['ABS', 'PVC', 'PET', 'PE', 'PP', 'HDPE'].map((mat) => {
-                const active = selectedMaterials.includes(mat);
-                return (
-                  <button
-                    key={mat}
-                    type="button"
-                    onClick={() => toggleMaterial(mat)}
-                    className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${
-                      active
-                        ? 'bg-[#0B2A5B] text-white shadow-xs'
-                        : 'bg-[#E8EEF6] text-[#0B2A5B] hover:bg-slate-200'
-                    }`}
-                  >
-                    {mat}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Previous Companies */}
-          <div className="space-y-2">
-            <label className="block text-xs font-extrabold text-[#0B2A5B]">
-              {t('الشركات التي عملت بها (اختياري)', 'Previous Companies (Optional)')}
-            </label>
-            <div className="space-y-2">
-              {companies.map((comp) => (
-                <div
-                  key={comp.id}
-                  className="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-200 shadow-2xs"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="px-3 py-2 rounded-xl bg-blue-50 text-[#1D6BF3] text-xs font-extrabold">
-                      {comp.code}
-                    </div>
-                    <div>
-                      <div className="text-xs sm:text-sm font-extrabold text-[#0B2A5B]">
-                        {comp.name}
-                      </div>
-                      <div className="text-[11px] text-slate-500 font-medium">{comp.role}</div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCompanies((prev) => prev.filter((item) => item.id !== comp.id))
-                    }
-                    className="p-1.5 text-slate-400 hover:text-[#EF4444]"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={handleAddCompany}
-                className="w-full py-2.5 rounded-xl border border-[#1D6BF3] text-[#1D6BF3] text-xs font-extrabold hover:bg-blue-50 transition-colors"
-              >
-                + {t('إضافة شركة أخرى', 'Add Another Company')}
-              </button>
-            </div>
-          </div>
-
-          {/* City & Country */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-extrabold text-[#0B2A5B]">
-              {t('المدينة / الدولة', 'City / Country')} <span className="text-[#EF4444]">*</span>
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <select
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                className="px-3.5 py-3 rounded-2xl bg-white border border-slate-200 text-sm font-bold text-[#0B2A5B]"
-              >
-                <option value="مصر">مصر</option>
-                <option value="السعودية">السعودية</option>
-                <option value="الإمارات">الإمارات</option>
-              </select>
-              <select
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="px-3.5 py-3 rounded-2xl bg-white border border-slate-200 text-sm font-bold text-[#0B2A5B]"
-              >
-                <option value="القاهرة">القاهرة</option>
-                <option value="العاشر من رمضان">العاشر من رمضان</option>
-                <option value="6 أكتوبر">6 أكتوبر</option>
-                <option value="الإسكندرية">الإسكندرية</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Submit Button */}
+        {step === 'done' && (
           <button
-            type="submit"
-            className="w-full py-4 px-6 rounded-full bg-[#0B2A5B] hover:bg-[#133B7A] text-white font-extrabold text-base shadow-lg flex items-center justify-center gap-3 mt-2"
+            type="button"
+            onClick={() => navigate('/auth/login')}
+            className="w-full py-3 rounded-xl bg-[#1769E8] text-white text-xs sm:text-sm font-extrabold"
           >
-            <span>{t('إنشاء حسابي الآن', 'Create My Profile Now')}</span>
-            <ArrowIcon className="w-5 h-5" />
+            {t('الانتقال لتسجيل الدخول', 'Proceed to Sign In')}
           </button>
+        )}
 
-          <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-500">
-            <ShieldCheck className="w-4 h-4 text-[#0B2A5B]" />
-            <span>{t('بياناتك آمنة ومشفرة بالكامل', 'Your data is fully encrypted & secure')}</span>
-          </div>
-        </form>
+        <div className="text-center pt-2 border-t border-[#DFE7F1]">
+          <Link to="/auth/login" className="text-xs font-extrabold text-[#1769E8]">
+            {t('العودة لتسجيل الدخول', 'Back to Sign In')}
+          </Link>
+        </div>
       </div>
     </div>
   );
 };
 
+export const OnboardingRolePage: React.FC = () => <RegisterPage />;
+export const OnboardingSetupPage: React.FC = () => <RegisterPage />;
+
 /* ============================================================================
-   About, How It Works & Contact Pages (Clean Light-Mode)
+   About, How It Works & Contact Pages
    ============================================================================ */
 export const AboutPage: React.FC = () => {
   const { t } = usePlastico();
   return (
     <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#DFE7F1] shadow-xs space-y-4">
         <PlasticoLogo variant="horizontal" size="md" />
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2A5B]">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#13243B]">
           {t('عن منصة بلاستيكو PLASTICO', 'About PLASTICO Platform')}
         </h1>
-        <p className="text-sm text-slate-600 leading-relaxed">
+        <p className="text-sm text-[#718096] leading-relaxed">
           {t(
-            'بلاستيكو هي المنظومة الصناعية الرقمية الأولى لربط المصانع، المهندسين، الفنيين، الموردين، والتجار في قطاع صناعة البلاستيك في مصر والوطن العربي.',
-            'PLASTICO is the premier digital ecosystem connecting factories, engineers, technicians, suppliers, and traders in the Arab plastics industry.'
+            'أول منصة عربية متكاملة تجمع منظومة صناعة البلاستيك: المصانع، الموردين، المهندسين، الفنيين، المعارض الافتراضية، الأكاديمية، والفرص في تجربة واحدة.',
+            'The integrated digital ecosystem connecting the plastics industry across the Arab world and beyond.'
           )}
         </p>
+        <div className="flex items-center gap-2 text-xs font-bold text-[#1769E8]">
+          <ShieldCheck className="w-4 h-4" />
+          <span>{t('منظومة صناعية موثوقة', 'Trusted Industrial Ecosystem')}</span>
+        </div>
         <Link
-          to="/app/home"
-          className="inline-flex px-6 py-3 rounded-full bg-[#0B2A5B] text-white text-xs font-extrabold"
+          to="/"
+          className="inline-flex px-6 py-3 rounded-xl bg-[#071A33] text-white text-xs font-extrabold"
         >
           {t('العودة للرئيسية', 'Back to Home')}
         </Link>
@@ -1134,9 +1635,9 @@ export const ContactPage: React.FC = () => {
   const [msg, setMsg] = useState('');
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#DFE7F1] shadow-xs space-y-4">
         <PlasticoLogo variant="horizontal" size="sm" />
-        <h1 className="text-xl font-extrabold text-[#0B2A5B]">
+        <h1 className="text-xl font-extrabold text-[#13243B]">
           {t('المساعدة والدعم الفني', 'Help & Support')}
         </h1>
         <textarea
@@ -1144,7 +1645,7 @@ export const ContactPage: React.FC = () => {
           value={msg}
           onChange={(e) => setMsg(e.target.value)}
           placeholder={t('اكتب استفسارك أو اقتراحك لفريق بلاستيكو...', 'Write your message...')}
-          className="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-[#0B2A5B]"
+          className="w-full p-4 rounded-xl bg-[#F4F7FC] border border-[#DFE7F1] text-sm text-[#13243B]"
         />
         <div className="flex items-center gap-3">
           <button
@@ -1153,12 +1654,12 @@ export const ContactPage: React.FC = () => {
               setMsg('');
               showToast('تم إرسال رسالتك لفريق الدعم بنجاح!', 'Message sent to support!');
             }}
-            className="px-6 py-3 rounded-full bg-[#0B2A5B] text-white text-xs font-extrabold"
+            className="px-6 py-3 rounded-xl bg-[#1769E8] text-white text-xs font-extrabold"
           >
             {t('إرسال الرسالة', 'Send Message')}
           </button>
-          <Link to="/app/home" className="text-xs font-bold text-[#1D6BF3]">
-            {t('العودة للتطبيق', 'Back to App')}
+          <Link to="/" className="text-xs font-bold text-[#1769E8]">
+            {t('العودة للرئيسية', 'Back to Home')}
           </Link>
         </div>
       </div>

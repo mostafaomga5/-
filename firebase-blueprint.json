@@ -1,0 +1,537 @@
+{
+  "entities": {
+    "UserPublicProfile": {
+      "title": "UserPublicProfile",
+      "description": "Public industrial profile for engineers, technicians, factories, and suppliers on PLASTICO (isolated from PII).",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID of the profile owner."
+        },
+        "accountType": {
+          "type": "string",
+          "enum": ["engineer", "technician", "factory", "supplier", "user"],
+          "minLength": 4,
+          "maxLength": 20,
+          "description": "Industrial persona type."
+        },
+        "nameAr": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120,
+          "description": "Display name in Arabic."
+        },
+        "nameEn": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120,
+          "description": "Display name in English."
+        },
+        "titleAr": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 160,
+          "description": "Professional title in Arabic."
+        },
+        "city": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80,
+          "description": "Industrial city."
+        },
+        "points": {
+          "type": "number",
+          "description": "Reputation points earned on the platform."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "minLength": 6,
+          "maxLength": 10,
+          "description": "Visibility of the public profile."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "uid",
+        "accountType",
+        "nameAr",
+        "nameEn",
+        "titleAr",
+        "city",
+        "points",
+        "visibility",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated PII document containing user email and phone number, accessible strictly by the owner.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Owner Firebase Auth UID."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 160,
+          "description": "Private user email."
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 30,
+          "description": "Private user phone number."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["uid", "email", "phone", "createdAt", "updatedAt"]
+    },
+    "ManufacturingRequestDoc": {
+      "title": "ManufacturingRequestDoc",
+      "description": "Industrial plastic manufacturing RFQ published on PLASTICO.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Document ID."
+        },
+        "authorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "UID of the user who created the RFQ."
+        },
+        "referenceCode": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 40,
+          "description": "RFQ reference code."
+        },
+        "titleAr": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "description": "Product title in Arabic."
+        },
+        "processId": {
+          "type": "string",
+          "enum": ["injection", "blow", "thermoforming", "extrusion", "film", "recycling", "molds"],
+          "minLength": 3,
+          "maxLength": 30,
+          "description": "Manufacturing process identifier."
+        },
+        "material": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 60,
+          "description": "Polymer resin material (PP, HDPE, PET, ABS, etc.)."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Requested production quantity."
+        },
+        "city": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80,
+          "description": "Delivery or industrial city."
+        },
+        "descriptionAr": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 2000,
+          "description": "Technical description of the RFQ."
+        },
+        "publisherName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120,
+          "description": "Display name of the publisher."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["new", "receiving_offers", "under_negotiation", "awarded", "completed", "cancelled"],
+          "minLength": 3,
+          "maxLength": 30,
+          "description": "Current lifecycle status of the RFQ."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "minLength": 6,
+          "maxLength": 10,
+          "description": "Listing visibility."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "id",
+        "authorId",
+        "referenceCode",
+        "titleAr",
+        "processId",
+        "material",
+        "quantity",
+        "city",
+        "descriptionAr",
+        "publisherName",
+        "status",
+        "visibility",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "IndustrialFaultDoc": {
+      "title": "IndustrialFaultDoc",
+      "description": "Machine or polymer fault posted to the PLASTICO maintenance community.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Document ID."
+        },
+        "authorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "UID of the fault author."
+        },
+        "titleAr": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 180,
+          "description": "Fault title in Arabic."
+        },
+        "machineType": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100,
+          "description": "Machine type."
+        },
+        "polymerMaterial": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 60,
+          "description": "Polymer material used."
+        },
+        "descriptionAr": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 2000,
+          "description": "Fault symptoms and technical details."
+        },
+        "publisherName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120,
+          "description": "Publisher display name."
+        },
+        "city": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80,
+          "description": "City."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["open", "solved", "closed"],
+          "minLength": 4,
+          "maxLength": 20,
+          "description": "Resolution status."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "minLength": 6,
+          "maxLength": 10,
+          "description": "Visibility."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "id",
+        "authorId",
+        "titleAr",
+        "machineType",
+        "polymerMaterial",
+        "descriptionAr",
+        "publisherName",
+        "city",
+        "status",
+        "visibility",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "IndustrialJobDoc": {
+      "title": "IndustrialJobDoc",
+      "description": "Industrial plastic factory job opportunity.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Job ID."
+        },
+        "authorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Author UID."
+        },
+        "titleAr": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "description": "Job title in Arabic."
+        },
+        "companyName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 140,
+          "description": "Hiring factory name."
+        },
+        "city": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80,
+          "description": "Job location city."
+        },
+        "salaryRange": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80,
+          "description": "Salary range string."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["open", "closed"],
+          "minLength": 4,
+          "maxLength": 15,
+          "description": "Job status."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "minLength": 6,
+          "maxLength": 10,
+          "description": "Job visibility."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "id",
+        "authorId",
+        "titleAr",
+        "companyName",
+        "city",
+        "salaryRange",
+        "status",
+        "visibility",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MarketListingDoc": {
+      "title": "MarketListingDoc",
+      "description": "Industrial marketplace listing for used machinery, molds, spare parts, or polymer resins.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Listing ID."
+        },
+        "authorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Seller UID."
+        },
+        "titleAr": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "description": "Listing title in Arabic."
+        },
+        "category": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 60,
+          "description": "Marketplace category."
+        },
+        "conditionAr": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80,
+          "description": "Condition description."
+        },
+        "price": {
+          "type": "number",
+          "description": "Listing price."
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 10,
+          "description": "Currency code (USD, EGP)."
+        },
+        "city": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80,
+          "description": "Seller city."
+        },
+        "sellerName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120,
+          "description": "Seller display name."
+        },
+        "image": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 300,
+          "description": "Asset path."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "sold", "archived"],
+          "minLength": 4,
+          "maxLength": 20,
+          "description": "Listing status."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "minLength": 6,
+          "maxLength": 10,
+          "description": "Visibility."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "id",
+        "authorId",
+        "titleAr",
+        "category",
+        "conditionAr",
+        "price",
+        "currency",
+        "city",
+        "sellerName",
+        "image",
+        "status",
+        "visibility",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserPublicProfile",
+      "description": "Public industrial user profiles (no PII)."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": "UserPrivateInfo",
+      "description": "Isolated private PII contact information accessible only by the owner."
+    },
+    "/manufacturingRequests/{requestId}": {
+      "schema": "ManufacturingRequestDoc",
+      "description": "Industrial manufacturing RFQ requests."
+    },
+    "/faults/{faultId}": {
+      "schema": "IndustrialFaultDoc",
+      "description": "Industrial faults and maintenance troubleshooting posts."
+    },
+    "/jobs/{jobId}": {
+      "schema": "IndustrialJobDoc",
+      "description": "Industrial factory job listings."
+    },
+    "/marketListings/{listingId}": {
+      "schema": "MarketListingDoc",
+      "description": "Industrial marketplace listings for used machines, molds, and resins."
+    }
+  }
+}

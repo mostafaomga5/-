@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 480" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#081E3D"/>
+      <stop offset="100%" stop-color="#17468A"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F2C29B"/>
+      <stop offset="100%" stop-color="#D99B72"/>
+    </linearGradient>
+    <linearGradient id="suit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#173A6E"/>
+      <stop offset="100%" stop-color="#0B2144"/>
+    </linearGradient>
+  </defs>
+  <!-- Industrial Environment Backdrop -->
+  <rect width="420" height="480" rx="28" fill="url(#bg)"/>
+  <circle cx="350" cy="80" r="120" fill="#FF8A2A" opacity="0.16"/>
+  <rect x="24" y="24" width="175" height="34" rx="10" fill="#071A33" fill-opacity="0.78" stroke="#FF8A2A" stroke-width="1.5"/>
+  <text x="111" y="45" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="11" font-weight="bold">MACHINERY • 400T SPECS</text>
+
+  <!-- Industrial Background Silhouettes -->
+  <rect x="28" y="160" width="95" height="190" rx="10" fill="#FFFFFF" fill-opacity="0.06" stroke="#FFFFFF" stroke-opacity="0.12"/>
+  <rect x="300" y="130" width="95" height="220" rx="10" fill="#FFFFFF" fill-opacity="0.06" stroke="#FF8A2A" stroke-opacity="0.28"/>
+  <line x1="315" y1="165" x2="380" y2="165" stroke="#FF8A2A" stroke-width="3" stroke-opacity="0.5"/>
+  <line x1="315" y1="185" x2="365" y2="185" stroke="#27BED6" stroke-width="2" stroke-opacity="0.4"/>
+
+  <!-- Character Shoulders & Torso -->
+  <path d="M78 480 C78 355 128 312 210 312 C292 312 342 355 342 480 Z" fill="url(#suit)" stroke="#FF8A2A" stroke-width="2"/>
+  <!-- PLASTICO Chest Badge -->
+  <rect x="238" y="368" width="66" height="20" rx="5" fill="#071A33" stroke="#FF8A2A" stroke-width="1.2"/>
+  <text x="271" y="381" text-anchor="middle" fill="#FF8A2A" font-family="sans-serif" font-size="9" font-weight="bold">IM-2400</text>
+
+  <!-- Neck & Head -->
+  <rect x="184" y="258" width="52" height="66" rx="20" fill="url(#skin)"/>
+  <rect x="148" y="118" width="124" height="154" rx="56" fill="url(#skin)"/>
+
+  <!-- Hair / Safety Gear -->
+  <path d="M146 168 C142 104 278 104 274 168 C260 138 160 138 146 168 Z" fill="#1E293B"/>
+
+  <!-- Safety Glasses if Engineer / Technician / Worker -->
+  
+
+  <!-- Eyes, Eyebrows, Beard & Smile -->
+  <rect x="168" y="164" width="28" height="5" rx="2.5" fill="#1E293B"/>
+  <rect x="224" y="164" width="28" height="5" rx="2.5" fill="#1E293B"/>
+  <circle cx="182" cy="184" r="6" fill="#0F172A"/>
+  <circle cx="238" cy="184" r="6" fill="#0F172A"/>
+  <path d="M154 218 C158 258 262 258 266 218 C256 238 164 238 154 218 Z" fill="#1E293B" opacity="0.82"/>
+  <path d="M192 232 Q210 244 228 232" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Role-Specific Foreground Prop -->
+  <rect x="114" y="374" width="116" height="94" rx="8" fill="#FFFFFF" stroke="#071A33" stroke-width="3"/>
+         <text x="172" y="398" text-anchor="middle" fill="#071A33" font-family="sans-serif" font-size="9" font-weight="bold">SPECIFICATIONS</text>
+         <text x="172" y="416" text-anchor="middle" fill="#1769E8" font-family="monospace" font-size="8.5" font-weight="bold">MODEL: IM-2400 400T</text>
+         <text x="172" y="434" text-anchor="middle" fill="#FF8A2A" font-family="monospace" font-size="8" font-weight="bold">210°C • 180 BAR</text>
+</svg>

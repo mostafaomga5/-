@@ -5,7 +5,8 @@ export type AccountType =
   | 'engineer'
   | 'factory'
   | 'supplier'
-  | 'trader';
+  | 'trader'
+  | 'visitor';
 
 export type UserRole = AccountType;
 
@@ -60,7 +61,7 @@ export interface UserProfile {
   nameEn: string;
   titleAr: string;
   titleEn: string;
-  email: string;
+  email?: string;
   phone: string;
   country: string;
   city: string;
@@ -79,7 +80,8 @@ export interface UserProfile {
   previousFactories?: string[];
   availableCapacityPercent?: number;
   badges: string[];
-  avatarUrl: string;
+  avatarUrl?: string;
+  avatar?: string;
 }
 
 export interface ProcessCategoryInfo {
@@ -114,6 +116,7 @@ export interface ManufacturingOffer {
   deliveryTermsAr: string;
   expiresAt: string;
   notesAr: string;
+  notes?: string;
   status: 'pending' | 'accepted' | 'rejected' | 'negotiating';
   createdAt: string;
 }
@@ -156,6 +159,8 @@ export interface ManufacturingRequest {
   createdAt: string;
   publisherName: string;
   image: string;
+  unit?: string;
+  attachments?: string[];
   offers: ManufacturingOffer[];
 }
 
@@ -220,12 +225,15 @@ export interface FaultSolution {
   faultId: string;
   authorName: string;
   authorRoleAr: string;
-  authorAccountType: AccountType;
+  authorAccountType?: AccountType;
   contentAr: string;
-  rootCauseAr: string;
-  stepsAr: string[];
+  content?: string;
+  rootCauseAr?: string;
+  stepsAr?: string[];
   upvotes: number;
+  helpfulVotes?: number;
   isBestSolution: boolean;
+  isAccepted?: boolean;
   createdAt: string;
 }
 
@@ -234,20 +242,27 @@ export interface IndustrialFault {
   titleAr: string;
   titleEn: string;
   machineTypeAr: string;
+  machineType?: string;
   machineBrand: string;
   machineModel: string;
   specializationAr: string;
   descriptionAr: string;
   symptomsAr: string[];
   materialUsed: string;
+  polymerMaterial?: string;
   urgency: 'urgent' | 'medium' | 'low';
   status: 'open' | 'solved';
+  publisherId?: string;
   publisherName: string;
   publisherRoleAr: string;
+  publisherAvatar?: string;
   city: string;
   createdAt: string;
   image: string;
+  images?: string[];
   savedByCurrentUser?: boolean;
+  likesCount?: number;
+  likedByCurrentUser?: boolean;
   solutions: FaultSolution[];
 }
 
@@ -256,6 +271,7 @@ export interface IndustrialJob {
   titleAr: string;
   titleEn: string;
   factoryNameAr: string;
+  companyName?: string;
   city: string;
   industrialArea: string;
   jobTypeAr: 'دوام كامل' | 'ورديات' | 'عقد استشاري';
@@ -278,21 +294,25 @@ export interface MarketListing {
   titleAr: string;
   titleEn: string;
   categoryAr: string;
-  categoryId: 'injection_machines' | 'blow_machines' | 'extrusion_lines' | 'molds' | 'raw_materials' | 'spare_parts' | 'auxiliary' | 'recycling_machines';
+  categoryId: 'injection_machines' | 'blow_machines' | 'extrusion_lines' | 'molds' | 'raw_materials' | 'spare_parts' | 'auxiliary' | 'auxiliaries' | 'recycling_machines' | 'film_lines';
   brand: string;
   model: string;
-  conditionAr: 'ممتازة' | 'جيدة' | 'تحتاج صيانة';
+  conditionAr: 'جديد' | 'ممتازة' | 'جيدة' | 'تحتاج صيانة' | string;
   price: number;
   currency: 'EGP' | 'SAR' | 'AED' | 'USD';
   city: string;
   year: number;
   specsAr: Record<string, string>;
   descriptionAr: string;
+  sellerId?: string;
   sellerNameAr: string;
   sellerTypeAr: string;
   sellerPhone: string;
+  sellerAvatar?: string;
   featured: boolean;
   image: string;
+  images?: string[];
+  likesCount?: number;
   createdAt: string;
 }
 
@@ -315,6 +335,11 @@ export interface ExhibitionBooth {
   reviewsCount: number;
   contactPhone: string;
   bannerImage: string;
+  featuredProducts?: {
+    nameAr: string;
+    specAr: string;
+    image: string;
+  }[];
   productsShowcase: {
     nameAr: string;
     specAr: string;

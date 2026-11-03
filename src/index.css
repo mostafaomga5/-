@@ -1,43 +1,216 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
   :root {
-    --bg-app: #F4F7FB;
-    --bg-card: #FFFFFF;
-    --navy-primary: #0B2A5B;
-    --blue-accent: #1D6BF3;
-    --text-main: #0F172A;
-    --text-muted: #64748B;
-    --border-soft: #E2E8F0;
+    --plastico-navy: #071A33;
+    --plastico-blue: #1769E8;
+    --plastico-orange: #FF8A2A;
+    --plastico-cyan: #27BED6;
+    --plastico-bg: #F4F7FC;
+    --plastico-white: #FFFFFF;
+    --plastico-text: #13243B;
+    --plastico-muted: #718096;
+    --plastico-border: #DFE7F1;
+  }
+
+  html.dark {
+    --plastico-bg: #051122;
+    --plastico-white: #0B1F3A;
+    --plastico-text: #F1F5F9;
+    --plastico-muted: #94A3B8;
+    --plastico-border: #1E3A5F;
+    color-scheme: dark;
   }
 
   html {
-    font-family: 'IBM Plex Sans Arabic', 'Plus Jakarta Sans', sans-serif;
-    background-color: #F4F7FB;
-    color: #0F172A;
-    scroll-behavior: smooth;
+    font-family: 'IBM Plex Sans Arabic', 'Inter', sans-serif;
+    background-color: var(--plastico-bg);
+    color: var(--plastico-text);
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    background-color: #F4F7FB;
-    color: #0F172A;
+    background-color: var(--plastico-bg);
+    color: var(--plastico-text);
     overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: break-word;
+  }
+
+  input,
+  textarea,
+  select {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 }
 
 .font-mono-num {
-  font-family: 'IBM Plex Sans Arabic', 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Inter', 'IBM Plex Sans Arabic', sans-serif;
   font-variant-numeric: tabular-nums;
 }
 
-/* Custom subtle scrollbars */
+.card-3d {
+  background: var(--plastico-white);
+  border: 1px solid var(--plastico-border);
+  box-shadow: 0 4px 16px -4px rgba(7, 26, 51, 0.06);
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms ease;
+}
+
+.card-3d:hover {
+  transform: translateY(-2px);
+  border-color: #C3D4EA;
+  box-shadow: 0 12px 26px -6px rgba(7, 26, 51, 0.11);
+}
+
+.card-3d-navy {
+  background: linear-gradient(145deg, #0B2547 0%, #071A33 100%);
+  border: 1px solid rgba(39, 190, 214, 0.28);
+  box-shadow: 0 14px 30px -6px rgba(7, 26, 51, 0.42);
+}
+
+.btn-3d-primary {
+  color: #FFFFFF;
+  background: #071A33;
+  border: 1px solid #12345E;
+  box-shadow: 0 4px 12px -2px rgba(7, 26, 51, 0.25);
+  transition: transform 150ms ease, background-color 150ms ease;
+}
+
+.btn-3d-primary:hover {
+  color: #FFFFFF;
+  background: #0C284D;
+  transform: translateY(-1px);
+}
+
+.btn-3d-blue {
+  color: #FFFFFF;
+  background: #1769E8;
+  border: 1px solid #155BC9;
+  box-shadow: 0 6px 16px -3px rgba(23, 105, 232, 0.32);
+  transition: transform 150ms ease, background-color 150ms ease;
+}
+
+.btn-3d-blue:hover {
+  color: #FFFFFF;
+  background: #1258C7;
+  transform: translateY(-1px);
+}
+
+.btn-3d-orange {
+  color: #FFFFFF;
+  background: #FF8A2A;
+  border: 1px solid #E57415;
+  box-shadow: 0 6px 16px -3px rgba(255, 138, 42, 0.35);
+  transition: transform 150ms ease, background-color 150ms ease;
+}
+
+.btn-3d-orange:hover {
+  color: #FFFFFF;
+  background: #F07B1A;
+  transform: translateY(-1px);
+}
+
+.input-3d {
+  background: var(--plastico-white);
+  border: 1.5px solid var(--plastico-border);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.input-3d:focus,
+.input-3d:focus-within {
+  border-color: #1769E8;
+  box-shadow: 0 0 0 3px rgba(23, 105, 232, 0.14);
+}
+
+/* 3D Flip Card Utilities */
+.flip-card-perspective {
+  perspective: 1200px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* Dark Mode Surface Refinements */
+html.dark .bg-\[\#F4F7FC\] {
+  background-color: #051122 !important;
+}
+
+html.dark .bg-white {
+  background-color: #0B1F3A !important;
+}
+
+html.dark .text-\[\#13243B\],
+html.dark .text-\[\#071A33\] {
+  color: #F1F5F9 !important;
+}
+
+html.dark .text-\[\#718096\],
+html.dark .text-\[\#4A5568\] {
+  color: #94A3B8 !important;
+}
+
+html.dark .border-\[\#DFE7F1\] {
+  border-color: #1E3A5F !important;
+}
+
+.checkerboard-transparent {
+  background-color: #F4F7FC;
+  background-image:
+    linear-gradient(45deg, #DFE7F1 25%, transparent 25%),
+    linear-gradient(-45deg, #DFE7F1 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #DFE7F1 75%),
+    linear-gradient(-45deg, transparent 75%, #DFE7F1 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: var(--plastico-bg);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -48,3 +221,4 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
+

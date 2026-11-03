@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 520" fill="none">
+  <defs>
+    <linearGradient id="bmNavy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#103166"/>
+      <stop offset="100%" stop-color="#071A33"/>
+    </linearGradient>
+    <linearGradient id="bmSteel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F1F5F9"/>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+    <linearGradient id="parisonGlow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF8A2A"/>
+      <stop offset="50%" stop-color="#FFB067"/>
+      <stop offset="100%" stop-color="#EA580C"/>
+    </linearGradient>
+    <filter id="bmShadow" x="-8%" y="-8%" width="116%" height="120%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#071A33" flood-opacity="0.38"/>
+    </filter>
+  </defs>
+  <g filter="url(#bmShadow)">
+    <!-- Main Frame & Right Control Tower -->
+    <rect x="130" y="96" width="290" height="360" rx="10" fill="none" stroke="#0B2548" stroke-width="26"/>
+    <rect x="392" y="96" width="96" height="360" rx="8" fill="url(#bmNavy)" stroke="#1769E8" stroke-width="2"/>
+    <!-- Gauges & Buttons on Tower -->
+    <circle cx="422" cy="138" r="14" fill="#F8FAFC" stroke="#27BED6" stroke-width="2"/>
+    <line x1="422" y1="138" x2="430" y2="130" stroke="#071A33" stroke-width="2"/>
+    <circle cx="458" cy="138" r="14" fill="#F8FAFC" stroke="#FF8A2A" stroke-width="2"/>
+    <line x1="458" y1="138" x2="466" y2="132" stroke="#DC2626" stroke-width="2"/>
+    <text x="422" y="164" text-anchor="middle" fill="#27BED6" font-family="sans-serif" font-size="7" font-weight="bold">6.2 BAR</text>
+    <text x="458" y="164" text-anchor="middle" fill="#FF8A2A" font-family="sans-serif" font-size="7" font-weight="bold">210°C</text>
+    <circle cx="422" cy="184" r="7" fill="#FF8A2A"/>
+    <circle cx="458" cy="184" r="7" fill="#1769E8"/>
+    <circle cx="458" cy="208" r="8" fill="#EF4444"/>
+    <!-- Top Extrusion Head -->
+    <rect x="215" y="42" width="110" height="90" rx="8" fill="url(#bmNavy)" stroke="#27BED6" stroke-width="1.5"/>
+    <rect x="246" y="132" width="48" height="22" rx="4" fill="url(#bmSteel)"/>
+    <!-- Glowing Orange Parison Tube -->
+    <rect x="256" y="154" width="28" height="92" rx="12" fill="url(#parisonGlow)"/>
+    <!-- Left & Right Open Mold Halves -->
+    <rect x="82" y="182" width="96" height="176" rx="6" fill="url(#bmSteel)" stroke="#334155" stroke-width="2"/>
+    <rect x="112" y="210" width="54" height="120" rx="8" fill="#475569"/>
+    <rect x="362" y="182" width="96" height="176" rx="6" fill="url(#bmSteel)" stroke="#334155" stroke-width="2"/>
+    <rect x="374" y="210" width="54" height="120" rx="8" fill="#475569"/>
+    <!-- Molded Blue Bottle in Center -->
+    <rect x="260" y="294" width="20" height="14" rx="2" fill="#1769E8"/>
+    <path d="M248 308 Q242 320 242 338 V396 Q242 406 254 406 H286 Q298 406 298 396 V338 Q298 320 292 308 Z" fill="#1769E8" stroke="#27BED6" stroke-width="1.5"/>
+    <line x1="244" y1="342" x2="296" y2="342" stroke="#60A5FA" stroke-width="2"/>
+    <line x1="244" y1="368" x2="296" y2="368" stroke="#60A5FA" stroke-width="2"/>
+    <!-- Bottom Platen & Base -->
+    <rect x="148" y="406" width="244" height="36" rx="5" fill="url(#bmSteel)"/>
+    <rect x="122" y="442" width="336" height="34" rx="6" fill="url(#bmNavy)"/>
+  </g>
+</svg>

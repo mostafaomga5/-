@@ -13,68 +13,118 @@ import {
   Bell,
   MessageSquare,
   Bookmark,
-  UserPlus,
   Settings,
-  Headphones,
   LogOut,
   Menu,
   X,
-  Star,
-  Crown,
   ChevronLeft,
   ChevronRight,
-  LayoutGrid,
   Globe,
+  CheckCircle2,
+  Search,
+  Truck,
+  UserCheck,
+  LogIn,
+  UserPlus,
+  LayoutDashboard,
   Sparkles,
+  ShieldCheck,
+  HelpCircle,
+  BarChart3,
+  Users,
+  Bot,
 } from 'lucide-react';
 import { usePlastico } from '../context/PlasticoContext';
 import { GlobalSearchModal } from '../components/GlobalSearchModal';
 import { PlasticoLogo } from '../components/PlasticoLogo';
 import { VerifiedFactoryBadge } from '../components/VerifiedFactoryBadge';
-import { UserRole } from '../types/plastico';
+import { SmartPlasticoAssistant } from '../components/SmartPlasticoAssistant';
+import { VisitorReadOnlyBanner } from '../components/SplashAndVisitorGate';
+import {
+  OnboardingWelcomeModal,
+  openPlasticoOnboardingTour,
+} from '../components/OnboardingWelcomeModal';
+import { ThemeAndCurrencyControls } from '../components/ThemeAndCurrencyControls';
+import { PWAInstallButton, OfflineIndicator } from '../components/PWAInstallButton';
 
 export const AppLayout: React.FC = () => {
   const {
     lang,
     setLang,
     t,
+    isAuthenticated,
+    realUser,
     currentUser,
-    switchPersona,
+    logoutRealSession,
     notifications,
+    savedIds,
+    unreadChatCount,
     toastMessage,
-    showToast,
+    setIsSearchOpen,
   } = usePlastico();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const unreadCount = Math.max(notifications.filter((n) => !n.isRead).length, 3);
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
   const ChevronIcon = lang === 'ar' ? ChevronLeft : ChevronRight;
 
+  const topNavItems = [
+    { to: '/app/home', labelAr: 'الرئيسية', labelEn: 'Home', exact: true },
+    { to: '/app/market', labelAr: 'السوق', labelEn: 'Marketplace' },
+    { to: '/app/faults', labelAr: 'المجتمع والأعطال', labelEn: 'Community & Faults' },
+    { to: '/app/news', labelAr: 'الأخبار والتحليلات', labelEn: 'Industry News' },
+    { to: '/app/materials', labelAr: 'أسعار الخامات', labelEn: 'Materials Intelligence' },
+    { to: '/app/suppliers', labelAr: 'الموردون والمصانع', labelEn: 'Directory' },
+    { to: '/app/jobs', labelAr: 'الوظائف', labelEn: 'Jobs' },
+    { to: '/app/training', labelAr: 'الأكاديمية', labelEn: 'Academy' },
+  ];
+
   const primaryMenuItems = [
-    { to: '/app/home', icon: Home, labelAr: 'الرئيسية', labelEn: 'Home' },
-    { to: '/app/faults', icon: Wrench, labelAr: 'الأعطال', labelEn: 'Faults' },
-    { to: '/app/jobs', icon: Briefcase, labelAr: 'التوظيف', labelEn: 'Jobs' },
-    { to: '/app/market', icon: Store, labelAr: 'السوق المستعمل', labelEn: 'Used Market' },
-    { to: '/app/expo', icon: Building2, labelAr: 'المعرض الافتراضي', labelEn: 'Virtual Expo' },
-    { to: '/app/manufacturing', icon: FileText, labelAr: 'طلبات التصنيع (RFQ)', labelEn: 'Manufacturing (RFQ)' },
-    {
-      to: '/app/visual-search',
-      icon: Camera,
-      labelAr: 'البحث بالصورة',
-      labelEn: 'Visual Search',
-      badgeNew: true,
-    },
-    {
-      to: '/app/training',
-      icon: GraduationCap,
-      labelAr: 'التدريب والشهادات',
-      labelEn: 'Training & Certs',
-    },
-    { to: '/app/news', icon: Newspaper, labelAr: 'الأخبار الصناعية', labelEn: 'Industrial News' },
+    { to: '/app/home', icon: Home, labelAr: 'الرئيسية والمجتمع الصناعي', labelEn: 'Home & Social Feed' },
+    { to: '/app/faults', icon: Wrench, labelAr: 'مجتمع الأعطال والحلول الفنية', labelEn: 'Faults & Troubleshooting' },
+    { to: '/app/news', icon: Newspaper, labelAr: 'أخبار صناعة البلاستيك والتحليلات', labelEn: 'Industry News & Editorial' },
+    { to: '/app/experts', icon: Users, labelAr: 'خبراء وصنّاع محتوى الصناعة', labelEn: 'Experts & Creators' },
+    { to: '/app/materials', icon: BarChart3, labelAr: 'أسعار الخامات وتحليلات السوق', labelEn: 'Materials Intelligence' },
+    { to: '/app/market', icon: Store, labelAr: 'السوق الصناعي والماكينات والخامات', labelEn: 'Industrial Marketplace' },
+    { to: '/app/jobs', icon: Briefcase, labelAr: 'الوظائف والملفات المهنية', labelEn: 'Jobs & Careers' },
+    { to: '/app/jobs/applications', icon: FileText, labelAr: 'طلبات التوظيف والمتقدمون', labelEn: 'Job Applications' },
+    { to: '/app/companies', icon: Building2, labelAr: 'دليل المصانع والشركات والخبراء', labelEn: 'Factories & Companies' },
+    { to: '/app/suppliers', icon: Truck, labelAr: 'دليل الموردين ومراكز الصيانة', labelEn: 'Suppliers Directory' },
+    { to: '/app/training', icon: GraduationCap, labelAr: 'أكاديمية بلاستيكو للتدريب', labelEn: 'PLASTICO Academy' },
+    { to: '/app/manufacturing', icon: FileText, labelAr: 'خدمات التصنيع وطلبات RFQ', labelEn: 'Manufacturing Services (RFQ)' },
+    { to: '/app/expo', icon: Building2, labelAr: 'المعارض الافتراضية للمصانع', labelEn: 'Virtual Exhibitions' },
+    { to: '/app/visual-search', icon: Camera, labelAr: 'البحث الذكي بالصورة', labelEn: 'Visual Search' },
+    { to: '/app/ai', icon: Bot, labelAr: 'مساعد PLASTICO AI المتخصص', labelEn: 'PLASTICO AI Assistant' },
   ];
 
   const secondaryMenuItems = [
+    {
+      to: '/app/profile',
+      icon: UserCheck,
+      labelAr: 'ملفي المهني / الصناعي',
+      labelEn: 'My Profile',
+    },
+    {
+      to: '/app/help',
+      icon: HelpCircle,
+      labelAr: 'المساعدة وتوثيق الحساب',
+      labelEn: 'Help & Verification',
+    },
+    {
+      to: '/app/saved',
+      icon: Bookmark,
+      labelAr: 'المفضلة والعناصر المحفوظة',
+      labelEn: 'Favorites & Saved Items',
+      badgeCount: savedIds.length,
+    },
+    {
+      to: '/app/messages',
+      icon: MessageSquare,
+      labelAr: 'المراسلات والدردشة المباشرة',
+      labelEn: 'Direct Messages',
+      badgeCount: unreadChatCount,
+    },
     {
       to: '/app/notifications',
       icon: Bell,
@@ -82,128 +132,131 @@ export const AppLayout: React.FC = () => {
       labelEn: 'Notifications',
       badgeCount: unreadCount,
     },
-    {
-      to: '/app/messages',
-      icon: MessageSquare,
-      labelAr: 'رسائلي',
-      labelEn: 'My Messages',
-    },
-    {
-      to: '/app/saved',
-      icon: Bookmark,
-      labelAr: 'حفظت لاحقاً',
-      labelEn: 'Saved Items',
-    },
-    {
-      to: '#invite',
-      icon: UserPlus,
-      labelAr: 'دعوة الأصدقاء',
-      labelEn: 'Invite Friends',
-      onClick: () => {
-        showToast(
-          'تم نسخ رابط الدعوة لمجتمع بلاستيكو الصناعي بنجاح!',
-          'Invitation link copied to clipboard!'
-        );
-        setDrawerOpen(false);
-      },
-    },
-    { to: '/app/settings', icon: Settings, labelAr: 'الإعدادات', labelEn: 'Settings' },
-    { to: '/contact', icon: Headphones, labelAr: 'المساعدة والدعم', labelEn: 'Help & Support' },
+    { to: '/app/settings', icon: Settings, labelAr: 'إعدادات الحساب', labelEn: 'Account Settings' },
+    { to: '/app/admin', icon: ShieldCheck, labelAr: 'لوحة تحكم الإدارة', labelEn: 'Admin Console' },
   ];
 
+  const roleBadgeLabel = (role?: string) => {
+    switch (role) {
+      case 'technician':
+        return t('فني تشغيل وصيانة', 'Technician');
+      case 'engineer':
+        return t('مهندس صناعي', 'Industrial Engineer');
+      case 'factory':
+        return t('حساب مصنع', 'Factory Account');
+      case 'supplier':
+        return t('مورد خامات ومعدات', 'Supplier Account');
+      case 'trader':
+        return t('تاجر معدات مستعملة', 'Equipment Trader');
+      case 'visitor':
+        return t('زائر (تصفح فقط)', 'Visitor (View Only)');
+      default:
+        return t('عضو بلاستيكو', 'PLASTICO Member');
+    }
+  };
+
   const renderDrawerContent = (closeOnClick = false) => (
-    <div className="flex flex-col h-full bg-[#F8FAFC] text-[#0B2A5B] select-none overflow-y-auto">
-      {/* Top Deep Navy Header matching Image 2 right screen */}
-      <div className="relative bg-gradient-to-b from-[#071D42] via-[#0B2A5B] to-[#123E82] pt-6 pb-12 px-5 text-white">
+    <div className="flex flex-col h-full bg-white text-[#13243B] select-none overflow-y-auto">
+      {/* Deep Navy Brand Header */}
+      <div className="relative bg-[#071A33] pt-6 pb-8 px-5 text-white border-b border-white/10">
         {closeOnClick && (
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
-            className="absolute top-4 left-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white"
+            className="absolute top-4 end-4 p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white"
             aria-label={t('إغلاق القائمة', 'Close menu')}
           >
             <X className="w-5 h-5" />
           </button>
         )}
-        <div className="flex flex-col items-center text-center">
-          <PlasticoLogo theme="dark" size="sm" />
-          <p className="text-xs font-medium text-blue-100 mt-2">
-            {t('معاً نصنع مستقبل صناعتنا', 'Together we build the future of our industry')}
-          </p>
-        </div>
-      </div>
+        <Link
+          to="/"
+          onClick={() => closeOnClick && setDrawerOpen(false)}
+          className="inline-block"
+        >
+          <PlasticoLogo theme="dark" size="sm" showTagline />
+        </Link>
 
-      {/* Overlapping White User Profile Card matching Image 2 */}
-      <div className="relative z-10 px-4 -mt-7">
-        <div className="bg-white rounded-2xl p-4 shadow-md border border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="relative shrink-0">
-              <img
-                src="/images/plastico/team/engineer-avatar.svg"
-                alt={currentUser.name}
-                className="w-14 h-14 rounded-full object-cover border-2 border-blue-100"
-              />
-              <span className="absolute -bottom-0.5 -left-0.5 w-5 h-5 rounded-full bg-[#0B2A5B] text-white flex items-center justify-center shadow">
-                <Camera className="w-3 h-3" />
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-extrabold text-[#0B2A5B] truncate">
-                {currentUser.role === 'engineer' ? t('أحمد محمد علي', 'Ahmed Mohamed Ali') : currentUser.name}
-              </h3>
-              <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#78350F] to-[#B45309] text-amber-100 text-[11px] font-bold">
-                  <Crown className="w-3 h-3 text-amber-300 fill-amber-300" />
-                  <span>{t('محترف', 'Pro')}</span>
-                </div>
-                <VerifiedFactoryBadge variant="compact" />
+        {/* Authenticated User or Guest Card */}
+        <div className="mt-5 p-3.5 rounded-xl bg-white/8 border border-white/12">
+          {isAuthenticated && realUser ? (
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-extrabold text-white truncate">
+                  {realUser.name}
+                </span>
+                {realUser.verified && <VerifiedFactoryBadge variant="compact" />}
               </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5 truncate">
-                {currentUser.role === 'engineer'
-                  ? t('مهندس ميكانيكا', 'Mechanical Engineer')
-                  : currentUser.title}
+              <p className="text-xs text-[#27BED6] font-bold mt-0.5">
+                {roleBadgeLabel(realUser.accountType)}
               </p>
+              <p className="text-[11px] text-slate-300 truncate mt-0.5">
+                {realUser.email} · {realUser.city}، {realUser.country}
+              </p>
+              <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-white/10">
+                <Link
+                  to="/app/profile"
+                  onClick={() => closeOnClick && setDrawerOpen(false)}
+                  className="flex-1 text-center py-1.5 px-2.5 rounded-lg bg-[#1769E8] hover:bg-[#1258C7] text-white text-xs font-bold transition-colors"
+                >
+                  {t('الملف الشخصي', 'My Profile')}
+                </Link>
+                <Link
+                  to="/app/home"
+                  onClick={() => closeOnClick && setDrawerOpen(false)}
+                  className="flex-1 text-center py-1.5 px-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors"
+                >
+                  {t('لوحة التحكم', 'Dashboard')}
+                </Link>
+              </div>
             </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 text-xs">
-            <Link
-              to="/app/profile"
-              onClick={() => closeOnClick && setDrawerOpen(false)}
-              className="text-[#0B2A5B] hover:text-[#1D6BF3] font-bold flex items-center gap-1"
-            >
-              <span>{t('تعديل الملف الشخصي', 'Edit Profile')}</span>
-              <ChevronIcon className="w-3.5 h-3.5" />
-            </Link>
-            <div className="flex items-center gap-1 font-extrabold text-[#0B2A5B]">
-              <span>4.8</span>
-              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+          ) : (
+            <div>
+              <p className="text-xs font-bold text-slate-200">
+                {t(
+                  'سجل دخولك لحفظ طلباتك وإدارة حسابك الصناعي وإصدار شهادات الأكاديمية.',
+                  'Sign in to save RFQs, manage your industrial account, and earn Academy certificates.'
+                )}
+              </p>
+              <div className="grid grid-cols-2 gap-2 mt-3">
+                <Link
+                  to="/auth/login"
+                  onClick={() => closeOnClick && setDrawerOpen(false)}
+                  className="py-2 px-3 rounded-lg bg-[#1769E8] hover:bg-[#1258C7] text-white text-xs font-extrabold text-center transition-colors"
+                >
+                  {t('تسجيل الدخول', 'Sign In')}
+                </Link>
+                <Link
+                  to="/auth/register"
+                  onClick={() => closeOnClick && setDrawerOpen(false)}
+                  className="py-2 px-3 rounded-lg bg-[#FF8A2A] hover:bg-[#F07B1A] text-white text-xs font-extrabold text-center transition-colors"
+                >
+                  {t('إنشاء حساب', 'Register')}
+                </Link>
+              </div>
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Quick Role Switcher for Demo Testing */}
-          <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-            <span className="text-[11px] text-slate-400 font-semibold">
-              {t('معاينة كـ:', 'View as:')}
-            </span>
-            <select
-              aria-label={t('تبديل نوع الحساب', 'Switch role')}
-              value={currentUser.role}
-              onChange={(e) => switchPersona(e.target.value as UserRole)}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-bold text-[#0B2A5B] focus:outline-none focus:border-[#1D6BF3]"
+        {/* Mobile Quick Controls (Currency, Theme, PWA & Language) inside Drawer */}
+        <div className="mt-3 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+          <ThemeAndCurrencyControls compact />
+          <div className="flex items-center gap-1.5">
+            <PWAInstallButton variant="compact" />
+            <button
+              type="button"
+              onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-extrabold cursor-pointer"
             >
-              <option value="engineer">{t('مهندس (أحمد محمد)', 'Engineer')}</option>
-              <option value="technician">{t('فني تشغيل وصيانة', 'Technician')}</option>
-              <option value="factory">{t('صاحب مصنع', 'Factory Owner')}</option>
-              <option value="supplier">{t('مورد خامات ومعدات', 'Supplier')}</option>
-              <option value="trader">{t('تاجر / سوق مستعمل', 'Trader')}</option>
-            </select>
+              <Globe className="w-3.5 h-3.5 text-[#27BED6]" />
+              <span>{lang === 'ar' ? 'English' : 'العربية'}</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Primary Navigation List */}
-      <nav className="px-3 py-3 space-y-1 flex-1">
+      {/* Navigation Links */}
+      <nav className="px-3 py-4 space-y-1 flex-1">
         {primaryMenuItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -214,45 +267,39 @@ export const AppLayout: React.FC = () => {
               className={({ isActive }) =>
                 `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                   isActive
-                    ? 'bg-[#DCEBFF] text-[#1D6BF3] shadow-2xs'
-                    : 'text-[#0B2A5B] hover:bg-slate-100'
+                    ? 'bg-[#1769E8]/10 text-[#1769E8]'
+                    : 'text-[#13243B] hover:bg-[#F4F7FC]'
                 }`
               }
             >
               <div className="flex items-center gap-3">
                 <Icon className="w-4 h-4 shrink-0" />
                 <span>{t(item.labelAr, item.labelEn)}</span>
-                {item.badgeNew && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#EF4444] text-white">
-                    {t('جديد', 'NEW')}
-                  </span>
-                )}
               </div>
-              <ChevronIcon className="w-4 h-4 text-slate-400" />
+              <ChevronIcon className="w-4 h-4 text-[#718096]" />
             </NavLink>
           );
         })}
 
-        <div className="my-2 border-t border-slate-200/80" />
+        <div className="my-3 border-t border-[#DFE7F1]" />
+
+        <button
+          type="button"
+          onClick={() => {
+            if (closeOnClick) setDrawerOpen(false);
+            openPlasticoOnboardingTour();
+          }}
+          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-[#FF8A2A]/10 text-[#071A33] hover:bg-[#FF8A2A]/20 transition-all cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-4 h-4 text-[#FF8A2A] shrink-0" />
+            <span>{t('التعريف بالمنصة (جولة تفاعلية)', 'Platform Interactive Tour')}</span>
+          </div>
+          <ChevronIcon className="w-4 h-4 text-[#718096]" />
+        </button>
 
         {secondaryMenuItems.map((item) => {
           const Icon = item.icon;
-          if (item.onClick) {
-            return (
-              <button
-                key={item.labelAr}
-                type="button"
-                onClick={item.onClick}
-                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-[#0B2A5B] hover:bg-slate-100 transition-all"
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span>{t(item.labelAr, item.labelEn)}</span>
-                </div>
-                <ChevronIcon className="w-4 h-4 text-slate-400" />
-              </button>
-            );
-          }
           return (
             <NavLink
               key={item.to}
@@ -261,8 +308,8 @@ export const AppLayout: React.FC = () => {
               className={({ isActive }) =>
                 `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                   isActive
-                    ? 'bg-[#DCEBFF] text-[#1D6BF3]'
-                    : 'text-[#0B2A5B] hover:bg-slate-100'
+                    ? 'bg-[#1769E8]/10 text-[#1769E8]'
+                    : 'text-[#13243B] hover:bg-[#F4F7FC]'
                 }`
               }
             >
@@ -270,56 +317,55 @@ export const AppLayout: React.FC = () => {
                 <Icon className="w-4 h-4 shrink-0" />
                 <span>{t(item.labelAr, item.labelEn)}</span>
                 {item.badgeCount ? (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#EF4444] text-white">
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-[#FF8A2A] text-white">
                     {item.badgeCount}
                   </span>
                 ) : null}
               </div>
-              <ChevronIcon className="w-4 h-4 text-slate-400" />
+              <ChevronIcon className="w-4 h-4 text-[#718096]" />
             </NavLink>
           );
         })}
       </nav>
 
-      {/* Bottom Soft Red Logout Button matching Image 2 */}
-      <div className="p-4 pt-2">
-        <button
-          type="button"
-          onClick={() => {
-            setDrawerOpen(false);
-            navigate('/');
-          }}
-          className="w-full py-3 px-4 rounded-2xl bg-[#FDECEB] hover:bg-[#fbd8d6] text-[#E11D48] font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>{t('تسجيل الخروج', 'Sign Out')}</span>
-        </button>
-      </div>
+      {/* Logout Button when Authenticated */}
+      {isAuthenticated && (
+        <div className="p-4 pt-2 border-t border-[#DFE7F1]">
+          <button
+            type="button"
+            onClick={async () => {
+              setDrawerOpen(false);
+              await logoutRealSession();
+              navigate('/auth/login');
+            }}
+            className="w-full py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>{t('تسجيل الخروج', 'Sign Out')}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F4F7FB] text-[#0F172A] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#F4F7FC] text-[#13243B] flex flex-col overflow-x-hidden">
       <GlobalSearchModal />
+      <OnboardingWelcomeModal />
 
       {/* Toast Feedback Banner */}
       {toastMessage && (
-        <div className="fixed bottom-20 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-[#0B2A5B] text-white text-xs sm:text-sm font-bold shadow-xl flex items-center gap-2 border border-blue-400/30">
-          <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+        <div className="fixed bottom-20 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl bg-[#071A33] text-white text-xs sm:text-sm font-bold shadow-xl flex items-center gap-2 border border-[#27BED6]/30">
+          <CheckCircle2 className="w-4 h-4 text-[#FF8A2A] shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Desktop Persistent Sidebar (matches the exact Drawer from Image 2) */}
-      <aside className="hidden lg:block w-80 shrink-0 border-e border-slate-200/80 bg-[#F8FAFC] sticky top-0 h-screen overflow-y-auto shadow-xs">
-        {renderDrawerContent(false)}
-      </aside>
-
-      {/* Slide-out Mobile/Tablet Drawer */}
+      {/* Slide-out Navigation Drawer */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div
-            className="fixed inset-0 bg-[#0B2A5B]/50 backdrop-blur-xs"
+            className="fixed inset-0 bg-[#071A33]/60 backdrop-blur-xs"
             onClick={() => setDrawerOpen(false)}
           />
           <div className="relative z-10 w-80 max-w-[86vw] h-full shadow-2xl">
@@ -328,112 +374,255 @@ export const AppLayout: React.FC = () => {
         </div>
       )}
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-10">
-        {/* Top White App Bar matching Image 2 & Image 5 */}
-        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 h-16 px-4 sm:px-6 flex items-center justify-between gap-3 shadow-2xs">
-          {/* Right side in RTL: Hamburger Menu + Quick Onboarding Showcase Link */}
-          <div className="flex items-center gap-2">
+      {/* Top Primary Navigation Bar */}
+      <OfflineIndicator />
+      <VisitorReadOnlyBanner />
+      <header className="sticky top-0 z-30 bg-[#071A33] text-white border-b border-white/10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 h-16 flex items-center justify-between gap-1.5 sm:gap-2">
+          {/* Start in RTL: Menu button + Complete Unclipped PLASTICO Logo */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0">
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              aria-label={t('فتح القائمة الجانبية', 'Open side menu')}
-              className="p-2 rounded-xl text-[#0B2A5B] hover:bg-slate-100 transition-colors"
+              aria-label={t('فتح القائمة الجانبية', 'Open navigation drawer')}
+              className="p-2 rounded-xl bg-white/8 hover:bg-white/15 text-white transition-colors shrink-0 cursor-pointer"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             </button>
             <Link
-              to="/?welcome=1"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-[#1D6BF3] text-xs font-bold transition-colors"
+              to="/"
+              data-testid="header-plastico-logo"
+              className="flex items-center shrink-0 overflow-visible"
             >
-              <span>{t('شاشة البداية والتسجيل', 'Splash & Onboarding')}</span>
+              <PlasticoLogo variant="horizontal" theme="dark" size="sm" />
             </Link>
           </div>
 
-          {/* Center: PLASTICO Logo Lockup */}
-          <Link to="/app/home" className="flex items-center">
-            <PlasticoLogo variant="horizontal" size="sm" />
-          </Link>
+          {/* Center: 7 Desktop Primary Navigation Links */}
+          <nav
+            aria-label={t('التنقل الرئيسي', 'Main Navigation')}
+            className="hidden xl:flex items-center gap-1 shrink-0"
+          >
+            {topNavItems.map((item) => {
+              const isActive = item.exact
+                ? location.pathname === item.to
+                : location.pathname.startsWith(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`px-3 py-2 rounded-lg text-xs font-extrabold whitespace-nowrap transition-colors ${
+                    isActive
+                      ? 'bg-[#1769E8] text-white'
+                      : 'text-slate-200 hover:text-white hover:bg-white/8'
+                  }`}
+                >
+                  {t(item.labelAr, item.labelEn)}
+                </Link>
+              );
+            })}
+          </nav>
 
-          {/* Left side in RTL: Language + Notifications Bell + User Avatar */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* End in RTL: Balanced Mobile & Desktop Action Icons */}
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            {/* Desktop-only Currency/Theme & Tour controls (available in drawer on mobile) */}
+            <div className="hidden md:flex items-center gap-1.5">
+              <ThemeAndCurrencyControls compact />
+            </div>
+
+            <button
+              type="button"
+              onClick={openPlasticoOnboardingTour}
+              data-testid="open-onboarding-btn"
+              title={t('التعريف بالمنصة', 'Platform Tour')}
+              className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-extrabold text-[#27BED6] whitespace-nowrap transition-colors cursor-pointer shrink-0"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#FF8A2A] shrink-0" />
+              <span className="hidden md:inline">{t('التعريف بالمنصة', 'Tour')}</span>
+            </button>
+
+            {/* 1. Search Icon */}
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              aria-label={t('بحث شامل', 'Universal Search')}
+              className="inline-flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-bold text-slate-200 whitespace-nowrap transition-colors cursor-pointer shrink-0"
+            >
+              <Search className="w-4 h-4 text-[#27BED6] shrink-0" />
+              <span className="hidden md:inline">{t('بحث...', 'Search...')}</span>
+            </button>
+
+            {/* 2. Notifications Bell Icon */}
+            <Link
+              to="/app/notifications"
+              data-testid="header-notifications-link"
+              title={t('الإشعارات', 'Notifications')}
+              aria-label={t('الإشعارات', 'Notifications')}
+              className="relative p-2 rounded-lg bg-white/10 hover:bg-white/15 text-white transition-colors shrink-0"
+            >
+              <Bell className="w-4 h-4 text-[#FF8A2A]" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-[#FF8A2A] text-white text-[10px] font-black flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
+
+            {/* 3. Messages Icon */}
+            <Link
+              to="/app/messages"
+              data-testid="header-messages-link"
+              title={t('المراسلات والدردشة المباشرة', 'Messages')}
+              aria-label={t('المراسلات والدردشة المباشرة', 'Messages')}
+              className="relative p-2 rounded-lg bg-white/10 hover:bg-white/15 text-white transition-colors shrink-0"
+            >
+              <MessageSquare className="w-4 h-4 text-[#27BED6]" />
+              {unreadChatCount > 0 && (
+                <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center">
+                  {unreadChatCount}
+                </span>
+              )}
+            </Link>
+
+            <Link
+              to="/app/saved"
+              title={t('المفضلة والعناصر المحفوظة', 'Favorites')}
+              className="hidden sm:inline-flex relative p-2 rounded-lg bg-white/10 hover:bg-white/15 text-white transition-colors shrink-0"
+            >
+              <Bookmark className="w-4 h-4 text-[#FF8A2A]" />
+              {savedIds.length > 0 && (
+                <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-[#FF8A2A] text-white text-[10px] font-black flex items-center justify-center">
+                  {savedIds.length}
+                </span>
+              )}
+            </Link>
+
             <button
               type="button"
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[#0B2A5B] text-xs font-extrabold transition-colors"
+              className="hidden sm:inline-flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-extrabold whitespace-nowrap transition-colors cursor-pointer shrink-0"
             >
-              <Globe className="w-3.5 h-3.5 text-[#1D6BF3]" />
+              <Globe className="w-3.5 h-3.5 text-[#27BED6] shrink-0" />
               <span>{lang === 'ar' ? 'EN' : 'عربي'}</span>
             </button>
 
-            <Link
-              to="/app/notifications"
-              aria-label={t('الإشعارات', 'Notifications')}
-              className="relative p-2 rounded-full text-[#0B2A5B] hover:bg-slate-100 transition-colors"
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#EF4444] text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs">
-                {unreadCount}
-              </span>
-            </Link>
-
-            <Link
-              to="/app/profile"
-              className="shrink-0 rounded-full ring-2 ring-blue-100 hover:ring-[#1D6BF3] transition-all"
-            >
-              <img
-                src="/images/plastico/team/engineer-avatar.svg"
-                alt={currentUser.name}
-                className="w-9 h-9 rounded-full object-cover"
-              />
-            </Link>
+            {/* 4. My Account / Sign In */}
+            {isAuthenticated && realUser ? (
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                <Link
+                  to="/app/home"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1769E8] hover:bg-[#1258C7] text-white text-xs font-extrabold whitespace-nowrap transition-colors"
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
+                  <span>{t('لوحة التحكم', 'Dashboard')}</span>
+                </Link>
+                <Link
+                  to="/app/profile"
+                  data-testid="header-profile-link"
+                  className="inline-flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold text-white whitespace-nowrap transition-colors"
+                >
+                  <img
+                    src={currentUser.avatar}
+                    alt={realUser.name}
+                    className="w-7 h-7 sm:w-6 sm:h-6 rounded-full object-cover border border-[#27BED6]/60 shrink-0"
+                  />
+                  <span className="hidden sm:inline max-w-[100px] truncate">
+                    {realUser.name}
+                  </span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await logoutRealSession();
+                    navigate('/auth/login');
+                  }}
+                  title={t('تسجيل الخروج', 'Sign Out')}
+                  className="hidden sm:inline-flex p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 transition-colors cursor-pointer shrink-0"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Link
+                  to="/auth/login"
+                  className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#1769E8] hover:bg-[#1258C7] text-white text-xs font-extrabold whitespace-nowrap transition-colors"
+                >
+                  <LogIn className="w-3.5 h-3.5 shrink-0" />
+                  <span>{t('دخول', 'Sign In')}</span>
+                </Link>
+                <Link
+                  to="/auth/register"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FF8A2A] hover:bg-[#F07B1A] text-white text-xs font-extrabold whitespace-nowrap transition-colors"
+                >
+                  <UserPlus className="w-3.5 h-3.5 shrink-0" />
+                  <span>{t('حساب جديد', 'Create Account')}</span>
+                </Link>
+              </div>
+            )}
           </div>
-        </header>
+        </div>
+      </header>
+
+      {/* Main Content Container */}
+      <div className="flex-1 flex flex-col lg:flex-row max-w-7xl w-full mx-auto pb-20 lg:pb-12">
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:block w-72 shrink-0 border-e border-[#DFE7F1] bg-white min-h-[calc(100vh-4rem)]">
+          {renderDrawerContent(false)}
+        </aside>
 
         {/* Page Body */}
-        <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-5">
+        <main className="flex-1 min-w-0 px-3.5 sm:px-6 lg:px-8 py-5 sm:py-6">
           <Outlet />
         </main>
       </div>
 
-      {/* Bottom 5-Tab Navigation Bar matching Image 2, Image 4 & Image 5 */}
+      {/* Mobile Bottom Navigation Bar — 5 Primary Tabs matching Reference UI */}
       <nav
+        data-testid="mobile-bottom-nav"
         aria-label={t('شريط التنقل السفلي', 'Bottom Navigation')}
-        className="fixed bottom-0 inset-x-0 z-30 lg:hidden bg-white border-t border-slate-200/90 h-16 px-2 flex items-center justify-around shadow-[0_-4px_20px_rgba(11,42,91,0.06)]"
+        className="fixed bottom-0 inset-x-0 z-30 lg:hidden bg-white/95 backdrop-blur-md border-t border-[#DFE7F1] min-h-16 pb-[env(safe-area-inset-bottom)] px-1 flex items-center justify-around shadow-[0_-4px_20px_rgba(7,26,51,0.06)]"
       >
         {[
-          { to: '/app/home', icon: Home, labelAr: 'الرئيسية', labelEn: 'Home' },
-          { to: '/app/faults', icon: Wrench, labelAr: 'الأعطال', labelEn: 'Faults' },
-          { to: '/app/jobs', icon: Briefcase, labelAr: 'التوظيف', labelEn: 'Jobs' },
+          { to: '/app/home', icon: Home, labelAr: 'الرئيسية', labelEn: 'Home', exact: true },
           { to: '/app/market', icon: Store, labelAr: 'السوق', labelEn: 'Market' },
+          { to: '/app/faults', icon: Users, labelAr: 'المجتمع', labelEn: 'Community' },
+          {
+            to: '/app/messages',
+            icon: MessageSquare,
+            labelAr: 'الرسائل',
+            labelEn: 'Messages',
+            badge: unreadChatCount,
+          },
+          { to: '/app/profile', icon: UserCheck, labelAr: 'حسابي', labelEn: 'My Account' },
         ].map((tab) => {
           const Icon = tab.icon;
-          const isActive =
-            location.pathname === tab.to ||
-            (tab.to !== '/app/home' && location.pathname.startsWith(tab.to));
+          const isActive = tab.exact
+            ? location.pathname === tab.to
+            : location.pathname.startsWith(tab.to);
           return (
             <NavLink
               key={tab.to}
               to={tab.to}
-              className={`flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-xl text-[11px] font-extrabold transition-colors ${
-                isActive ? 'text-[#1D6BF3]' : 'text-slate-500 hover:text-[#0B2A5B]'
+              className={`relative min-h-[44px] min-w-[54px] flex flex-col items-center justify-center gap-1 py-1.5 px-2 rounded-xl text-[11px] font-extrabold transition-colors ${
+                isActive ? 'text-[#1769E8]' : 'text-[#718096] hover:text-[#13243B]'
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : ''}`} />
+              <div className="relative">
+                <Icon className="w-5 h-5" />
+                {tab.badge ? (
+                  <span className="absolute -top-1.5 -end-2 min-w-[16px] h-4 px-1 rounded-full bg-[#FF8A2A] text-white text-[9px] font-black flex items-center justify-center">
+                    {tab.badge}
+                  </span>
+                ) : null}
+              </div>
               <span>{t(tab.labelAr, tab.labelEn)}</span>
             </NavLink>
           );
         })}
-
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-xl text-[11px] font-extrabold text-slate-500 hover:text-[#0B2A5B]"
-        >
-          <LayoutGrid className="w-5 h-5" />
-          <span>{t('المزيد', 'More')}</span>
-        </button>
       </nav>
+
+      <SmartPlasticoAssistant mode="floating" />
     </div>
   );
 };

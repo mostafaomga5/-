@@ -1,0 +1,35 @@
+{
+  "id": "/",
+  "name": "PLASTICO — بلاستيكو | المنظومة الصناعية المتكاملة لصناعة البلاستيك",
+  "short_name": "PLASTICO",
+  "description": "منظومة صناعية اجتماعية وتجارية متخصصة تجمع المصانع والمهندسين والفنيين والموردين وتجار المعدات والخامات في صناعة البلاستيك.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "ar",
+  "theme_color": "#071A33",
+  "background_color": "#071A33",
+  "categories": ["business", "productivity", "social", "education"],
+  "icons": [
+    {
+      "src": "/brand/plastico-favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/aistudio/file_00000000bc5071f4a3f1a71eb2c8e8bf_bf37e630.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/aistudio/file_00000000bc5071f4a3f1a71eb2c8e8bf_bf37e630.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

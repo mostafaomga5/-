@@ -1,23 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
   <defs>
-    <linearGradient id="pGradMain" x1="15" y1="15" x2="105" y2="105" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#0B3B8C"/>
-      <stop offset="52%" stop-color="#1D72F2"/>
-      <stop offset="100%" stop-color="#47A8FF"/>
+    <linearGradient id="pBlue" x1="16" y1="14" x2="88" y2="104" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#27BED6"/>
+      <stop offset="45%" stop-color="#1769E8"/>
+      <stop offset="100%" stop-color="#0D47A1"/>
     </linearGradient>
-    <linearGradient id="pGradFold" x1="20" y1="55" x2="75" y2="110" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#082866"/>
-      <stop offset="50%" stop-color="#1864DC"/>
-      <stop offset="100%" stop-color="#58B6FF"/>
+    <linearGradient id="pOrange" x1="52" y1="16" x2="108" y2="86" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFAB4A"/>
+      <stop offset="60%" stop-color="#FF8A2A"/>
+      <stop offset="100%" stop-color="#E66400"/>
     </linearGradient>
-    <filter id="pShadow" x="-10%" y="-10%" width="125%" height="125%">
-      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0B2A5B" flood-opacity="0.22"/>
-    </filter>
   </defs>
-  <g filter="url(#pShadow)">
-    <!-- Upper P loop ribbon -->
-    <path d="M34 22H68C85.673 22 98 33.4 98 49.5C98 65.6 85.673 77 68 77H48C39.5 77 34 82.5 34 90V64C34 56.5 40 53 49 53H66C73.5 53 78 49.8 78 44.5C78 39.2 73.5 36 66 36H34C28.5 36 25 32.5 25 28C25 24.5 28.5 22 34 22Z" fill="url(#pGradMain)"/>
-    <!-- Lower P stem ribbon -->
-    <path d="M48 56H66C52 56 49 63 49 74V92C49 98.6 43.6 104 37 104H30C26.7 104 25 101.5 25 98V76C25 63.5 34.5 56 48 56Z" fill="url(#pGradFold)"/>
-  </g>
+  <!-- Outer Orange Industrial Loop -->
+  <path d="M54 16H74C92.7777 16 108 31.2223 108 50C108 68.7777 92.7777 84 74 84H56V66H73C81.8366 66 89 58.8366 89 50C89 41.1634 81.8366 34 73 34H54V16Z" fill="url(#pOrange)"/>
+  <!-- Primary Geometric Blue Stem & Inner Loop -->
+  <path d="M20 28C20 21.3726 25.3726 16 32 16H64C80.5685 16 94 29.4315 94 46C94 62.5685 80.5685 76 64 76H42V104H20V28ZM42 34V58H62C68.6274 58 74 52.6274 74 46C74 39.3726 68.6274 34 62 34H42Z" fill="url(#pBlue)"/>
+  <!-- Polymer Molecular Connection Nodes -->
+  <path d="M31 44L51 34L66 46" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.92"/>
+  <circle cx="31" cy="44" r="6" fill="#27BED6" stroke="#071A33" stroke-width="2"/>
+  <circle cx="51" cy="34" r="5.5" fill="#FFFFFF"/>
+  <circle cx="66" cy="46" r="6.5" fill="#FF8A2A" stroke="#FFFFFF" stroke-width="2"/>
 </svg>
